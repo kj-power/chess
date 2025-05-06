@@ -445,7 +445,7 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow - 1, currCol - 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        if (currRow == 1) {
+                        if (currRow - 1 == 1) {
                             ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
                             moves.add(aMove);
                             aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
@@ -466,7 +466,7 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow - 1, currCol + 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        if (currRow == 1) {
+                        if (currRow - 1 == 1) {
                             ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
                             moves.add(aMove);
                             aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
@@ -484,9 +484,10 @@ public class ChessPiece {
                 }
 
                 currRow--;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+
                 if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
-                    ChessPosition end = new ChessPosition(currRow, currCol);
-                    ChessPiece otherPiece = board.getPiece(end);
 
                     if (currRow == 1 && otherPiece == null) {
                         ChessMove aMove = new ChessMove(myPosition, end, PieceType.QUEEN);
@@ -504,12 +505,12 @@ public class ChessPiece {
                     }
                 }
 
-                if (myPosition.getRow() == 7) {
+                if (myPosition.getRow() == 7 && otherPiece == null) {
                     currRow--;
 
                     if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
-                        ChessPosition end = new ChessPosition(currRow, currCol);
-                        ChessPiece otherPiece = board.getPiece(end);
+                        end = new ChessPosition(currRow, currCol);
+                        otherPiece = board.getPiece(end);
                         ChessMove aMove = new ChessMove(myPosition, end, null);
 
                         if (otherPiece == null) {
@@ -524,7 +525,7 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow + 1, currCol - 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        if (currRow == 8) {
+                        if (currRow + 1 == 8) {
                             ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
                             moves.add(aMove);
                             aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
@@ -545,7 +546,7 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow + 1, currCol + 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        if (currRow == 8) {
+                        if (currRow + 1 == 8) {
                             ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
                             moves.add(aMove);
                             aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
@@ -563,9 +564,9 @@ public class ChessPiece {
                 }
 
                 currRow++;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
                 if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
-                    ChessPosition end = new ChessPosition(currRow, currCol);
-                    ChessPiece otherPiece = board.getPiece(end);
 
                     if (currRow == 8 && otherPiece == null) {
                         ChessMove aMove = new ChessMove(myPosition, end, PieceType.QUEEN);
@@ -583,12 +584,12 @@ public class ChessPiece {
                     }
                 }
 
-                if (myPosition.getRow() == 2) {
+                if (myPosition.getRow() == 2 && otherPiece == null) {
                     currRow++;
 
                     if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
-                        ChessPosition end = new ChessPosition(currRow, currCol);
-                        ChessPiece otherPiece = board.getPiece(end);
+                        end = new ChessPosition(currRow, currCol);
+                        otherPiece = board.getPiece(end);
                         ChessMove aMove = new ChessMove(myPosition, end, null);
 
                         if (otherPiece == null) {
