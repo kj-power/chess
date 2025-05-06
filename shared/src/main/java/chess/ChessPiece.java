@@ -445,8 +445,20 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow - 1, currCol - 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        ChessMove aMove = new ChessMove(myPosition, capture1, null);
-                        moves.add(aMove);
+                        if (currRow == 1) {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.ROOK);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.BISHOP);
+                            moves.add(aMove);
+                        }
+                        else {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, null);
+                            moves.add(aMove);
+                        }
                     }
                 }
 
@@ -454,8 +466,20 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow - 1, currCol + 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        ChessMove aMove = new ChessMove(myPosition, capture1, null);
-                        moves.add(aMove);
+                        if (currRow == 1) {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.ROOK);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.BISHOP);
+                            moves.add(aMove);
+                        }
+                        else {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, null);
+                            moves.add(aMove);
+                        }
                     }
                 }
 
@@ -463,9 +487,19 @@ public class ChessPiece {
                 if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
                     ChessPosition end = new ChessPosition(currRow, currCol);
                     ChessPiece otherPiece = board.getPiece(end);
-                    ChessMove aMove = new ChessMove(myPosition, end, null);
 
-                    if (otherPiece == null) {
+                    if (currRow == 1 && otherPiece == null) {
+                        ChessMove aMove = new ChessMove(myPosition, end, PieceType.QUEEN);
+                        moves.add(aMove);
+                        aMove = new ChessMove(myPosition, end, PieceType.KNIGHT);
+                        moves.add(aMove);
+                        aMove = new ChessMove(myPosition, end, PieceType.ROOK);
+                        moves.add(aMove);
+                        aMove = new ChessMove(myPosition, end, PieceType.BISHOP);
+                        moves.add(aMove);
+                    }
+                    else if (otherPiece == null) {
+                        ChessMove aMove = new ChessMove(myPosition, end, null);
                         moves.add(aMove);
                     }
                 }
@@ -490,8 +524,20 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow + 1, currCol - 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        ChessMove aMove = new ChessMove(myPosition, capture1, null);
-                        moves.add(aMove);
+                        if (currRow == 8) {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.ROOK);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.BISHOP);
+                            moves.add(aMove);
+                        }
+                        else {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, null);
+                            moves.add(aMove);
+                        }
                     }
                 }
 
@@ -499,8 +545,20 @@ public class ChessPiece {
                     ChessPosition capture1 = new ChessPosition(currRow + 1, currCol + 1);
                     ChessPiece otherPiece1 = board.getPiece(capture1);
                     if (otherPiece1 != null && otherPiece1.getTeamColor() != this.getTeamColor()) {
-                        ChessMove aMove = new ChessMove(myPosition, capture1, null);
-                        moves.add(aMove);
+                        if (currRow == 8) {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, PieceType.QUEEN);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.KNIGHT);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.ROOK);
+                            moves.add(aMove);
+                            aMove = new ChessMove(myPosition, capture1, PieceType.BISHOP);
+                            moves.add(aMove);
+                        }
+                        else {
+                            ChessMove aMove = new ChessMove(myPosition, capture1, null);
+                            moves.add(aMove);
+                        }
                     }
                 }
 
@@ -508,9 +566,19 @@ public class ChessPiece {
                 if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
                     ChessPosition end = new ChessPosition(currRow, currCol);
                     ChessPiece otherPiece = board.getPiece(end);
-                    ChessMove aMove = new ChessMove(myPosition, end, null);
 
-                    if (otherPiece == null) {
+                    if (currRow == 8 && otherPiece == null) {
+                        ChessMove aMove = new ChessMove(myPosition, end, PieceType.QUEEN);
+                        moves.add(aMove);
+                        aMove = new ChessMove(myPosition, end, PieceType.KNIGHT);
+                        moves.add(aMove);
+                        aMove = new ChessMove(myPosition, end, PieceType.ROOK);
+                        moves.add(aMove);
+                        aMove = new ChessMove(myPosition, end, PieceType.BISHOP);
+                        moves.add(aMove);
+                    }
+                    else if (otherPiece == null) {
+                        ChessMove aMove = new ChessMove(myPosition, end, null);
                         moves.add(aMove);
                     }
                 }
