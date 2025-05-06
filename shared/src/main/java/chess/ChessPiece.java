@@ -687,6 +687,182 @@ public class ChessPiece {
                 }
             }
         }
+
+        if (type == PieceType.QUEEN) {
+            ChessPosition start = myPosition;
+
+            int currRow = myPosition.getRow();
+            int currCol = myPosition.getColumn();
+
+            while (currRow < 8 && currCol < 8) {
+                currRow++;
+                currCol++;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end, null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+
+            currRow = myPosition.getRow();
+            currCol = myPosition.getColumn();
+
+            while (currRow > 1 && currCol < 8) {
+                currRow--;
+                currCol++;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end,null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+
+            currRow = myPosition.getRow();
+            currCol = myPosition.getColumn();
+
+            while (currRow > 1 && currCol > 1) {
+                currRow--;
+                currCol--;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end, null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+
+            currRow = myPosition.getRow();
+            currCol = myPosition.getColumn();
+
+            while (currRow < 8 && currCol > 1) {
+                currRow++;
+                currCol--;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end, null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+
+            currRow = myPosition.getRow();
+            currCol = myPosition.getColumn();
+
+            while (currRow < 8) {
+                currRow++;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end, null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+
+            currRow = myPosition.getRow();
+            currCol = myPosition.getColumn();
+
+            while (currCol < 8) {
+                currCol++;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end,null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+
+            currRow = myPosition.getRow();
+            currCol = myPosition.getColumn();
+
+            while (currRow > 1) {
+                currRow--;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end, null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+
+            currRow = myPosition.getRow();
+            currCol = myPosition.getColumn();
+
+            while (currCol > 1) {
+                currCol--;
+                ChessPosition end = new ChessPosition(currRow, currCol);
+                ChessPiece otherPiece = board.getPiece(end);
+                ChessMove aMove = new ChessMove(start, end, null);
+
+                if (otherPiece == null) {
+                    moves.add(aMove);
+                }
+                else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
+                    break;
+                }
+                else if (this.getTeamColor() == otherPiece.getTeamColor()){
+                    break;
+                }
+            }
+        }
         return moves;
     }
 
