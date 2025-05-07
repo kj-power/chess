@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -19,13 +20,17 @@ public class ChessPiece {
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode();
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
@@ -388,7 +393,8 @@ public class ChessPiece {
             }
 
             //2 right 1 up
-            currRow = currRow - 2;
+            currRow = myPosition.getRow();
+            currRow--;
 
             if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
                 ChessPosition end = new ChessPosition(currRow, currCol);
@@ -418,11 +424,14 @@ public class ChessPiece {
 
                 if (otherPiece == null) {
                     moves.add(aMove);
+                } else if (this.getTeamColor() != otherPiece.getTeamColor()) {
+                    moves.add(aMove);
                 }
             }
 
             //2 left 1 up
-            currRow = currRow - 2;
+            currRow = myPosition.getRow();
+            currRow--;
 
             if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
                 ChessPosition end = new ChessPosition(currRow, currCol);
@@ -430,6 +439,8 @@ public class ChessPiece {
                 ChessMove aMove = new ChessMove(myPosition, end, null);
 
                 if (otherPiece == null) {
+                    moves.add(aMove);
+                } else if (this.getTeamColor() != otherPiece.getTeamColor()) {
                     moves.add(aMove);
                 }
             }
