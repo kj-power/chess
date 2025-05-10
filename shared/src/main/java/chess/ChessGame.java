@@ -35,6 +35,7 @@ public class ChessGame {
     }
 
     public ChessGame() {
+        this.teamTurn = TeamColor.WHITE;
     }
 
     private TeamColor teamTurn;
@@ -72,12 +73,15 @@ public class ChessGame {
      * startPosition
      */
 
-    public boolean validTester(ChessMove move, ChessPiece piece, Collection<ChessPosition> opPositions, ChessPosition kingPos) {
+    public boolean validTester(ChessMove move, ChessPiece piece, Collection<ChessPosition> opPositions) {
         boolean illegal = false;
         ChessBoard copyBoard = new ChessBoard();
+
         copyBoard.duplicateBoard(gameBoard);
         // move the piece on the copied board
         copyBoard.movePiece(move.getStartPosition(), move.getEndPosition(), piece);
+        // find king
+        ChessPosition kingPos = copyBoard.findKing(piece.getTeamColor());
 
         // check possible moves of each opposing piece
         for (ChessPosition pos : opPositions) {
@@ -114,7 +118,7 @@ public class ChessGame {
 
         // initialize opposing pieces
         TeamColor opColor;
-        if (teamTurn == TeamColor.WHITE) {
+        if (piece.getTeamColor() == TeamColor.WHITE) {
             opColor = TeamColor.BLACK;
         } else {
             opColor = TeamColor.WHITE;
@@ -122,8 +126,6 @@ public class ChessGame {
 
         // find out where the king is
         boolean illegal;
-        ChessPiece king = new ChessPiece(teamTurn, ChessPiece.PieceType.KING);
-        ChessPosition kingPos = gameBoard.findKing();
 
         // move piece in question through all potential positions
         for (ChessMove move : allMoves) {
@@ -131,7 +133,7 @@ public class ChessGame {
             // go through each opposing piece
             Collection<ChessPosition> opPositions = new ArrayList<>(gameBoard.findTeamPosition(opColor));
 
-            if (validTester(move, piece, opPositions, kingPos)) {
+            if (validTester(move, piece, opPositions)) {
                 illegal = true;
             }
 

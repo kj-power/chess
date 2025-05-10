@@ -77,10 +77,11 @@ public class ChessBoard {
         }
     }
 
-    public ChessPosition findKing() {
+    public ChessPosition findKing(ChessGame.TeamColor color) {
+        ChessPiece king = new ChessPiece(color, ChessPiece.PieceType.KING);
         for (int row = 0; row <= 7; row++) {
             for (int col = 0; col <= 7; col++) {
-                if (squares[row][col] != null && squares[row][col].getPieceType() == ChessPiece.PieceType.KING) {
+                if (squares[row][col] != null && squares[row][col].equals(king)) {
                     ChessPosition pos;
                     pos = new ChessPosition(row + 1, col + 1);
                     return pos;
