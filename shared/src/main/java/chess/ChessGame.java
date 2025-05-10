@@ -200,7 +200,8 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) {
+
+    public  boolean isInCheckHelper(TeamColor teamColor, ChessBoard currBoard) {
         boolean check = false;
 
         TeamColor opColor;
@@ -210,14 +211,14 @@ public class ChessGame {
             opColor = TeamColor.WHITE;
         }
 
-        Collection<ChessPosition> opPositions = new ArrayList<>(gameBoard.findTeamPosition(opColor));
-        ChessPosition kingPos = gameBoard.findKing(teamColor);
+        Collection<ChessPosition> opPositions = new ArrayList<>(currBoard.findTeamPosition(opColor));
+        ChessPosition kingPos = currBoard.findKing(teamColor);
 
         for (ChessPosition pos : opPositions) {
-            ChessPiece opPiece = gameBoard.getPiece(pos);
+            ChessPiece opPiece = currBoard.getPiece(pos);
             if (opPiece != null) {
                 Collection<ChessMove> opMoves = new ArrayList<>();
-                opMoves = opPiece.pieceMoves(gameBoard, pos);
+                opMoves = opPiece.pieceMoves(currBoard, pos);
                 for (ChessMove opMove : opMoves) {
                     if (opMove.getEndPosition().equals(kingPos)) {
                         check = true;
@@ -228,34 +229,12 @@ public class ChessGame {
         }
         return check;
     }
+    public boolean isInCheck(TeamColor teamColor) {
+        return isInCheckHelper(teamColor, gameBoard);
+    }
 
     public boolean isCheck(TeamColor teamColor, ChessBoard copyBoard) {
-        boolean check = false;
-
-        TeamColor opColor;
-        if (teamColor == TeamColor.WHITE) {
-            opColor = TeamColor.BLACK;
-        } else {
-            opColor = TeamColor.WHITE;
-        }
-
-        Collection<ChessPosition> opPositions = new ArrayList<>(copyBoard.findTeamPosition(opColor));
-        ChessPosition kingPos = copyBoard.findKing(teamColor);
-
-        for (ChessPosition pos : opPositions) {
-            ChessPiece opPiece = copyBoard.getPiece(pos);
-            if (opPiece != null) {
-                Collection<ChessMove> opMoves = new ArrayList<>();
-                opMoves = opPiece.pieceMoves(gameBoard, pos);
-                for (ChessMove opMove : opMoves) {
-                    if (opMove.getEndPosition().equals(kingPos)) {
-                        check = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return check;
+       return isInCheckHelper(teamColor, copyBoard);
     }
 
     /**
