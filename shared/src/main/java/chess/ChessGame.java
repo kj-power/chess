@@ -36,6 +36,8 @@ public class ChessGame {
 
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
+        this.gameBoard = new ChessBoard();
+        gameBoard.resetBoard();
     }
 
     private TeamColor teamTurn;
@@ -191,6 +193,35 @@ public class ChessGame {
         return check;
     }
 
+    public boolean isCheck(TeamColor teamColor, ChessBoard gameBoard) {
+        boolean check = false;
+
+        TeamColor opColor;
+        if (teamColor == TeamColor.WHITE) {
+            opColor = TeamColor.BLACK;
+        } else {
+            opColor = TeamColor.WHITE;
+        }
+
+        Collection<ChessPosition> opPositions = new ArrayList<>(gameBoard.findTeamPosition(opColor));
+        ChessPosition kingPos = gameBoard.findKing(teamColor);
+
+        for (ChessPosition pos : opPositions) {
+            ChessPiece opPiece = gameBoard.getPiece(pos);
+            if (opPiece != null) {
+                Collection<ChessMove> opMoves = new ArrayList<>();
+                opMoves = opPiece.pieceMoves(gameBoard, pos);
+                for (ChessMove opMove : opMoves) {
+                    if (opMove.getEndPosition().equals(kingPos)) {
+                        check = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return check;
+    }
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -203,26 +234,19 @@ public class ChessGame {
         }
 
         boolean checkmate = true;
-        ChessBoard copyBoard = new ChessBoard();
-        copyBoard.duplicateBoard(gameBoard);
-
-        TeamColor opColor;
-        if (teamColor == TeamColor.WHITE) {
-            opColor = TeamColor.BLACK;
-        } else {
-            opColor = TeamColor.WHITE;
-        }
 
         Collection<ChessPosition> positions = new ArrayList<>(gameBoard.findTeamPosition(teamColor));
         for (ChessPosition pos : positions) {
-            ChessPiece piece = new ChessPiece(teamColor, copyBoard.getPiece(pos).getPieceType());
+            ChessBoard copyBoard = new ChessBoard();
+            copyBoard.duplicateBoard(gameBoard);
+            ChessPiece piece = copyBoard.getPiece(pos);
             Collection<ChessMove> moves = piece.pieceMoves(copyBoard, pos);
             for (ChessMove move : moves) {
                 copyBoard.movePiece(move.getStartPosition(), move.getEndPosition(), piece);
-                if (!isInCheck(teamColor)) {
+                if (!isCheck(teamColor, copyBoard)) {
                     checkmate = false;
+                    return checkmate;
                 }
-                copyBoard.duplicateBoard(gameBoard);
             }
         }
 
