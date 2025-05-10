@@ -273,11 +273,11 @@ public class ChessGame {
 
         Collection<ChessPosition> positions = new ArrayList<>(gameBoard.findTeamPosition(teamColor));
         for (ChessPosition pos : positions) {
-            ChessBoard copyBoard = new ChessBoard();
-            copyBoard.duplicateBoard(gameBoard);
-            ChessPiece piece = copyBoard.getPiece(pos);
-            Collection<ChessMove> moves = piece.pieceMoves(copyBoard, pos);
+            ChessPiece piece = gameBoard.getPiece(pos);
+            Collection<ChessMove> moves = piece.pieceMoves(gameBoard, pos);
             for (ChessMove move : moves) {
+                ChessBoard copyBoard = new ChessBoard();
+                copyBoard.duplicateBoard(gameBoard);
                 copyBoard.movePiece(move.getStartPosition(), move.getEndPosition(), piece);
                 if (!isCheck(teamColor, copyBoard)) {
                     checkmate = false;
