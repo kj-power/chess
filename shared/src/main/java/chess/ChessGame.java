@@ -155,7 +155,43 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition pos = move.getStartPosition();
+        ChessPiece piece = gameBoard.getPiece(pos);
+        boolean possible = false;
+        if (piece == null) {
+            throw new InvalidMoveException();
+        }
+        if (piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException();
+        }
+        Collection<ChessMove> possibleMoves = validMoves(pos);
+        for (ChessMove possibleMove : possibleMoves) {
+            if (possibleMove.equals(move)) {
+                possible = true;
+            }
+        }
+        if (possible) {
+            int row = move.getEndPosition().getRow();
+            boolean promote = false;
+            promote = (row == 8 && teamTurn == TeamColor.WHITE) || (row == 1 && teamTurn == TeamColor.BLACK);
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN && promote) {
+                piece = new ChessPiece(teamTurn, move.getPromotionPiece());
+                gameBoard.movePiece(move.getStartPosition(), move.getEndPosition(), piece);
+            }
+            else {
+                piece = gameBoard.getPiece(pos);
+                gameBoard.movePiece(move.getStartPosition(), move.getEndPosition(), piece);
+            }
+            if (teamTurn == TeamColor.WHITE) {
+                this.teamTurn = TeamColor.BLACK;
+            } else {
+                this.teamTurn = TeamColor.WHITE;
+            }
+
+        }
+        if (!possible) {
+            throw new InvalidMoveException();
+        }
     }
 
     /**
