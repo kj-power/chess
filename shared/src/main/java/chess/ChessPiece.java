@@ -113,19 +113,25 @@ public class ChessPiece {
         return pawnMoves;
     }
 
+    public Collection<ChessMove> pawnAddMove(ChessPosition startPos, ChessPosition endPos) {
+        Collection<ChessMove> pawnMoves = new ArrayList<>();
+        ChessMove move;
+        if (endPos.getRow() == 1 || endPos.getRow() == 8) {
+            pawnMoves.addAll(pawnPromote(startPos, endPos));
+        }
+        else {
+            move = new ChessMove(startPos, endPos, null);
+            pawnMoves.add(move);
+        }
+        return pawnMoves;
+    }
+
     public Collection<ChessMove> pawnHelper(ChessBoard board, ChessPosition startPos, ChessPosition endPos) {
         Collection<ChessMove> pawnMoves = new ArrayList<>();
         ChessPiece otherPiece = board.getPiece(endPos);
 
         if (otherPiece == null) {
-            ChessMove move;
-            if (endPos.getRow() == 1 || endPos.getRow() == 8) {
-                pawnMoves.addAll(pawnPromote(startPos, endPos));
-            }
-            else {
-                move = new ChessMove(startPos, endPos, null);
-                pawnMoves.add(move);
-            }
+            pawnMoves = pawnAddMove(startPos, endPos);
             return pawnMoves;
         }
         else {
@@ -141,19 +147,215 @@ public class ChessPiece {
             return null;
         }
         else if (otherPiece.getTeamColor() != this.getTeamColor()) {
-            ChessMove move;
-
-            if (endPos.getRow() == 1 || endPos.getRow() == 8) {
-                pawnMoves.addAll(pawnPromote(startPos, endPos));
-            }
-            else {
-                move = new ChessMove(startPos, endPos, null);
-                pawnMoves.add(move);
-            }
+            pawnMoves = pawnAddMove(startPos, endPos);
             return pawnMoves;
         }
         else {
             return null;
+        }
+    }
+
+    public void addMoves(ChessBoard board, ChessPosition start, ChessPosition end, Collection<ChessMove> moves) {
+        ChessMove move;
+        if (end.getRow() <= 8 && end.getRow() >= 1 && end.getColumn() <= 8 && end.getColumn() >= 1) {
+            move = bishopHelper(board, start, end);
+            if (move != null) {
+                moves.add(move);
+            }
+        }
+    }
+
+    public void pawnPieceMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        ChessPosition startPos = myPosition;
+        Collection<ChessMove> pawnMoves = new ArrayList<>();
+        ChessPosition endPos;
+        int rowIt;
+        int startRow;
+
+        if (this.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            rowIt = -1;
+            startRow = 7;
+        }
+        else {
+            rowIt = 1;
+            startRow = 2;
+        }
+
+        if (myPosition.getRow() == startRow) {
+            endPos = newPos(myPosition, rowIt, 0);
+            pawnMoves = pawnHelper(board, myPosition, endPos);
+            if (pawnMoves != null) {
+                endPos = newPos(myPosition, (2 * rowIt), 0);
+                pawnMoves = pawnHelper(board, myPosition, endPos);
+                if (pawnMoves != null) {
+                    moves.addAll(pawnMoves);
+                }
+            }
+        }
+
+        endPos = newPos(myPosition, rowIt, 0);
+        if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
+            pawnMoves = pawnHelper(board, myPosition, endPos);
+            if (pawnMoves != null) {
+                moves.addAll(pawnMoves);
+            }
+        }
+
+        endPos = newPos(myPosition, rowIt, 1);
+        if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
+            pawnMoves = pawnCapture(board, myPosition, endPos);
+            if (pawnMoves != null) {
+                moves.addAll(pawnMoves);
+            }
+        }
+
+        endPos = newPos(myPosition, rowIt, -1);
+        if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
+            pawnMoves = pawnCapture(board, myPosition, endPos);
+            if (pawnMoves != null) {
+                moves.addAll(pawnMoves);
+            }
+        }
+    }
+
+    public void knightPieceMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        ChessPosition endPos;
+
+        endPos = newPos(myPosition, 2, 1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, 2, -1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, -2, 1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, -2, -1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, 1, 2);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, -1, 2);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, 1, -2);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, -1, -2);
+        addMoves(board, myPosition, endPos, moves);
+    }
+
+    public void kingPieceMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        ChessPosition endPos;
+
+        endPos = newPos(myPosition, 1, 0);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, -1, 0);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, 0, 1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, 0, -1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, 1, 1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, 1, -1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, -1, 1);
+        addMoves(board, myPosition, endPos, moves);
+        endPos = newPos(myPosition, -1, -1);
+        addMoves(board, myPosition, endPos, moves);
+    }
+
+    public void bishopPieceMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        captured = false;
+        ChessPosition startPos = myPosition;
+        ChessPosition endPos;
+        ChessMove move;
+
+        while (myPosition.getRow() < 8 && myPosition.getColumn() < 8 && !captured) {
+            endPos = newPos(myPosition, 1, 1);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
+        }
+
+        myPosition = startPos;
+        captured = false;
+        while (myPosition.getRow() > 1 && myPosition.getColumn() < 8 && !captured) {
+            endPos = newPos(myPosition, -1, 1);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
+        }
+
+        myPosition = startPos;
+        captured = false;
+        while (myPosition.getRow() < 8 && myPosition.getColumn() > 1 && !captured) {
+            endPos = newPos(myPosition, 1, -1);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
+        }
+
+        myPosition = startPos;
+        captured = false;
+        while (myPosition.getRow() > 1 && myPosition.getColumn() > 1 && !captured) {
+            endPos = newPos(myPosition, -1, -1);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
+        }
+    }
+
+    public void rookPieceMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        captured = false;
+        ChessPosition endPos;
+        ChessMove move;
+        ChessPosition startPos = myPosition;
+
+        myPosition = startPos;
+        while (myPosition.getRow() < 8 && !captured) {
+            endPos = newPos(myPosition, 1, 0);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
+        }
+
+        myPosition = startPos;
+        captured = false;
+        while (myPosition.getColumn() < 8 && !captured) {
+            endPos = newPos(myPosition, 0, 1);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
+        }
+
+        myPosition = startPos;
+        captured = false;
+        while (myPosition.getColumn() > 1 && !captured) {
+            endPos = newPos(myPosition, 0, -1);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
+        }
+
+        myPosition = startPos;
+        captured = false;
+        while (myPosition.getRow() > 1 && !captured) {
+            endPos = newPos(myPosition, -1, 0);
+            move = bishopHelper(board, startPos, endPos);
+            if (move != null) {
+                moves.add(move);
+            } else {break;}
+            myPosition = endPos;
         }
     }
 
@@ -162,292 +364,23 @@ public class ChessPiece {
         ChessPosition startPos = myPosition;
 
         if (type == PieceType.PAWN) {
-            Collection<ChessMove> pawnMoves = new ArrayList<>();
-            ChessPosition endPos;
-            ChessMove move;
-            int rowIt;
-            int startRow;
-
-            if (this.getTeamColor() == ChessGame.TeamColor.BLACK) {
-                rowIt = -1;
-                startRow = 7;
-            }
-            else {
-                rowIt = 1;
-                startRow = 2;
-            }
-
-            if (myPosition.getRow() == startRow) {
-                endPos = newPos(myPosition, rowIt, 0);
-                pawnMoves = pawnHelper(board, myPosition, endPos);
-                if (pawnMoves != null) {
-                    endPos = newPos(myPosition, (2 * rowIt), 0);
-                    pawnMoves = pawnHelper(board, myPosition, endPos);
-                    if (pawnMoves != null) {
-                        moves.addAll(pawnMoves);
-                    }
-                }
-            }
-
-            endPos = newPos(myPosition, rowIt, 0);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                pawnMoves = pawnHelper(board, myPosition, endPos);
-                if (pawnMoves != null) {
-                    moves.addAll(pawnMoves);
-                }
-            }
-
-            endPos = newPos(myPosition, rowIt, 1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                pawnMoves = pawnCapture(board, myPosition, endPos);
-                if (pawnMoves != null) {
-                    moves.addAll(pawnMoves);
-                }
-            }
-
-            endPos = newPos(myPosition, rowIt, -1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                pawnMoves = pawnCapture(board, myPosition, endPos);
-                if (pawnMoves != null) {
-                    moves.addAll(pawnMoves);
-                }
-            }
+            pawnPieceMoves(board, myPosition, moves);
         }
 
         if (type == PieceType.KNIGHT) {
-            ChessPosition endPos;
-            ChessMove move;
-
-            endPos = newPos(myPosition, 2, 1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, 2, -1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, -2, 1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, -2, -1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, 1, 2);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, -1, 2);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, 1, -2);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, -1, -2);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
+            knightPieceMoves(board, myPosition, moves);
         }
 
         if (type == PieceType.KING) {
-            ChessPosition endPos;
-            ChessMove move;
-
-            endPos = newPos(myPosition, 1, 0);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, -1, 0);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, 0, 1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, 0, -1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, 1, 1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, 1, -1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, -1, 1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
-
-            endPos = newPos(myPosition, -1, -1);
-            if (endPos.getRow() <= 8 && endPos.getRow() >= 1 && endPos.getColumn() <= 8 && endPos.getColumn() >= 1) {
-                move = bishopHelper(board, myPosition, endPos);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
+            kingPieceMoves(board, myPosition, moves);
         }
 
         if (type == PieceType.BISHOP || type == PieceType.QUEEN) {
-            captured = false;
-
-            ChessPosition endPos;
-            ChessMove move;
-
-            while (myPosition.getRow() < 8 && myPosition.getColumn() < 8 && !captured) {
-                endPos = newPos(myPosition, 1, 1);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
-
-            myPosition = startPos;
-            captured = false;
-            while (myPosition.getRow() > 1 && myPosition.getColumn() < 8 && !captured) {
-                endPos = newPos(myPosition, -1, 1);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
-
-            myPosition = startPos;
-            captured = false;
-            while (myPosition.getRow() < 8 && myPosition.getColumn() > 1 && !captured) {
-                endPos = newPos(myPosition, 1, -1);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
-
-            myPosition = startPos;
-            captured = false;
-            while (myPosition.getRow() > 1 && myPosition.getColumn() > 1 && !captured) {
-                endPos = newPos(myPosition, -1, -1);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
+            bishopPieceMoves(board, myPosition, moves);
         }
 
         if (type == PieceType.ROOK || type == PieceType.QUEEN) {
-            captured = false;
-            ChessPosition endPos;
-            ChessMove move;
-
-            myPosition = startPos;
-            while (myPosition.getRow() < 8 && !captured) {
-                endPos = newPos(myPosition, 1, 0);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
-
-            myPosition = startPos;
-            captured = false;
-            while (myPosition.getColumn() < 8 && !captured) {
-                endPos = newPos(myPosition, 0, 1);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
-
-            myPosition = startPos;
-            captured = false;
-            while (myPosition.getColumn() > 1 && !captured) {
-                endPos = newPos(myPosition, 0, -1);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
-
-            myPosition = startPos;
-            captured = false;
-            while (myPosition.getRow() > 1 && !captured) {
-                endPos = newPos(myPosition, -1, 0);
-                move = bishopHelper(board, startPos, endPos);
-                if (move != null) {
-                    moves.add(move);
-                } else {break;}
-                myPosition = endPos;
-            }
+            rookPieceMoves(board, myPosition, moves);
         }
 
         return moves;

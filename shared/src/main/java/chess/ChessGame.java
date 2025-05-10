@@ -229,7 +229,7 @@ public class ChessGame {
         return check;
     }
 
-    public boolean isCheck(TeamColor teamColor, ChessBoard gameBoard) {
+    public boolean isCheck(TeamColor teamColor, ChessBoard copyBoard) {
         boolean check = false;
 
         TeamColor opColor;
@@ -239,11 +239,11 @@ public class ChessGame {
             opColor = TeamColor.WHITE;
         }
 
-        Collection<ChessPosition> opPositions = new ArrayList<>(gameBoard.findTeamPosition(opColor));
-        ChessPosition kingPos = gameBoard.findKing(teamColor);
+        Collection<ChessPosition> opPositions = new ArrayList<>(copyBoard.findTeamPosition(opColor));
+        ChessPosition kingPos = copyBoard.findKing(teamColor);
 
         for (ChessPosition pos : opPositions) {
-            ChessPiece opPiece = gameBoard.getPiece(pos);
+            ChessPiece opPiece = copyBoard.getPiece(pos);
             if (opPiece != null) {
                 Collection<ChessMove> opMoves = new ArrayList<>();
                 opMoves = opPiece.pieceMoves(gameBoard, pos);
