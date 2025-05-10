@@ -99,6 +99,20 @@ public class ChessPiece {
         }
     }
 
+    public Collection<ChessMove> pawnPromote(ChessPosition startPos, ChessPosition endPos) {
+        Collection<ChessMove> pawnMoves = new ArrayList<>();
+        ChessMove move;
+        move = new ChessMove(startPos, endPos, PieceType.BISHOP);
+        pawnMoves.add(move);
+        move = new ChessMove(startPos, endPos, PieceType.KNIGHT);
+        pawnMoves.add(move);
+        move = new ChessMove(startPos, endPos, PieceType.QUEEN);
+        pawnMoves.add(move);
+        move = new ChessMove(startPos, endPos, PieceType.ROOK);
+        pawnMoves.add(move);
+        return pawnMoves;
+    }
+
     public Collection<ChessMove> pawnHelper(ChessBoard board, ChessPosition startPos, ChessPosition endPos) {
         Collection<ChessMove> pawnMoves = new ArrayList<>();
         ChessPiece otherPiece = board.getPiece(endPos);
@@ -106,14 +120,7 @@ public class ChessPiece {
         if (otherPiece == null) {
             ChessMove move;
             if (endPos.getRow() == 1 || endPos.getRow() == 8) {
-                move = new ChessMove(startPos, endPos, PieceType.BISHOP);
-                pawnMoves.add(move);
-                move = new ChessMove(startPos, endPos, PieceType.KNIGHT);
-                pawnMoves.add(move);
-                move = new ChessMove(startPos, endPos, PieceType.QUEEN);
-                pawnMoves.add(move);
-                move = new ChessMove(startPos, endPos, PieceType.ROOK);
-                pawnMoves.add(move);
+                pawnMoves.addAll(pawnPromote(startPos, endPos));
             }
             else {
                 move = new ChessMove(startPos, endPos, null);
@@ -137,14 +144,7 @@ public class ChessPiece {
             ChessMove move;
 
             if (endPos.getRow() == 1 || endPos.getRow() == 8) {
-                move = new ChessMove(startPos, endPos, PieceType.BISHOP);
-                pawnMoves.add(move);
-                move = new ChessMove(startPos, endPos, PieceType.KNIGHT);
-                pawnMoves.add(move);
-                move = new ChessMove(startPos, endPos, PieceType.QUEEN);
-                pawnMoves.add(move);
-                move = new ChessMove(startPos, endPos, PieceType.ROOK);
-                pawnMoves.add(move);
+                pawnMoves.addAll(pawnPromote(startPos, endPos));
             }
             else {
                 move = new ChessMove(startPos, endPos, null);
