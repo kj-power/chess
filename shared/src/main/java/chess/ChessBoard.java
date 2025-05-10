@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -13,7 +15,7 @@ public class ChessBoard {
     @Override
     public String toString() {
         return "ChessBoard{" +
-                "squares=" + Arrays.toString(squares) +
+                "squares=" + Arrays.deepToString(squares) +
                 '}';
     }
 
@@ -33,7 +35,15 @@ public class ChessBoard {
 
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
-        
+    }
+
+    public void duplicateBoard(ChessBoard og) {
+        for (int row = 0; row <= 7; row++) {
+            for (int col = 0; col <= 7; col++) {
+                ChessPosition pos = new ChessPosition(row + 1, col + 1);
+                this.squares[row][col] = og.getPiece(pos);
+            }
+        }
     }
 
     /**
@@ -44,6 +54,11 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         squares[position.getRow() - 1][position.getColumn() - 1] = piece;
+    }
+
+    public void movePiece(ChessPosition oldPos, ChessPosition newPos, ChessPiece piece) {
+        squares[oldPos.getRow() - 1][oldPos.getColumn() - 1] = null;
+        squares[newPos.getRow() - 1][newPos.getColumn() - 1] = piece;
     }
 
     /**
@@ -60,6 +75,52 @@ public class ChessBoard {
         } else {
             return null;
         }
+    }
+
+    public ChessPosition findKing() {
+        for (int row = 0; row <= 7; row++) {
+            for (int col = 0; col <= 7; col++) {
+                if (squares[row][col] != null && squares[row][col].getPieceType() == ChessPiece.PieceType.KING) {
+                    ChessPosition pos;
+                    pos = new ChessPosition(row + 1, col + 1);
+                    return pos;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Collection<ChessPosition> findPiece(ChessPiece piece) {
+        Collection<ChessPosition> positions = new ArrayList<>();
+        ChessPosition pos;
+
+        for (int row = 0; row <= 7; row++) {
+            for (int col = 0; col <= 7; col++) {
+                if (squares[row][col] != null && squares[row][col].equals(piece)) {
+                    pos = new ChessPosition(row + 1, col + 1);
+                    positions.add(pos);
+                }
+            }
+        }
+
+        return positions;
+    }
+
+    public Collection<ChessPosition> findTeamPosition(ChessGame.TeamColor color) {
+        ChessPiece piece = new ChessPiece(color, ChessPiece.PieceType.PAWN);
+        Collection<ChessPosition> positions = new ArrayList<>(findPiece(piece));
+        piece = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+        positions.addAll(findPiece(piece));
+        piece = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
+        positions.addAll(findPiece(piece));
+        piece = new ChessPiece(color, ChessPiece.PieceType.KING);
+        positions.addAll(findPiece(piece));
+        piece = new ChessPiece(color, ChessPiece.PieceType.QUEEN);
+        positions.addAll(findPiece(piece));
+        piece = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+        positions.addAll(findPiece(piece));
+
+        return positions;
     }
 
     /**
