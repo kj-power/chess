@@ -12,6 +12,7 @@ import java.util.Objects;
  */
 public class ChessPiece {
     private final ChessGame.TeamColor pieceColor;
+
     private final PieceType type;
 
     @Override
