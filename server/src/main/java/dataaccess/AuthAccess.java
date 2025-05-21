@@ -11,7 +11,7 @@ public class AuthAccess {
         data.add(new AuthData(token, username));
     }
 
-    public AuthData getAuth(String token) {
+    public static AuthData getAuth(String token) {
         for (AuthData indAuth : data) {
             if (indAuth.authToken().equals(token)) {
                 return indAuth;
