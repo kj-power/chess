@@ -5,13 +5,13 @@ import model.UserData;
 import java.util.Collection;
 
 public class UserAccess {
-    private Collection<UserData> data;
+    private static Collection<UserData> data;
 
-    void createUser(String username, String password, String email) {
+    public static void createUser(String username, String password, String email) {
         data.add(new UserData(username, password, email));
     }
 
-    UserData getUser(String username) {
+    public static UserData getUser(String username) {
         for (UserData indUser : data) {
             if (indUser.username().equals(username)) {
                 return indUser;
@@ -20,7 +20,7 @@ public class UserAccess {
         return null;
     }
 
-    void clear() {
+    public void clear() {
         data.clear();
     }
 }

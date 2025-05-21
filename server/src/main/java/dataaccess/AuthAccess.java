@@ -4,14 +4,14 @@ import java.util.UUID;
 import model.AuthData;
 
 public class AuthAccess {
-    private Collection<AuthData> data;
+    private static Collection<AuthData> data;
 
-    void createAuth(String username) {
+    public static void createAuth(String username) {
         String token = UUID.randomUUID().toString();
         data.add(new AuthData(token, username));
     }
 
-    AuthData getAuth(String token) {
+    public AuthData getAuth(String token) {
         for (AuthData indAuth : data) {
             if (indAuth.authToken().equals(token)) {
                 return indAuth;
@@ -20,7 +20,16 @@ public class AuthAccess {
         return null;
     }
 
-    void deleteAuth(String token) {
+    public static String getToken(String username) {
+        for (AuthData indAuth : data) {
+            if (indAuth.username().equals(username)) {
+                return indAuth.authToken();
+            }
+        }
+        return null;
+    }
+
+    public void deleteAuth(String token) {
         data.removeIf(indAuth -> indAuth.authToken().equals(token));
     }
 
