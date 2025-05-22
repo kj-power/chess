@@ -32,4 +32,8 @@ public class GameService {
         Collection<GameData> games = GameAccess.listGames();
         return new ListResult(games);
     }
+
+    public static void join(JoinRequest joinRequest, String username) {
+        int gameID = GameAccess.joinGame(joinRequest.color(), joinRequest.gameID(), username);
+    }
 }
