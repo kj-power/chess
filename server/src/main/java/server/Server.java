@@ -38,13 +38,18 @@ public class Server {
 
     private Object join(Request req, Response res) {
         try {
+            System.out.println("Raw body: " + req.body());
             String authToken = req.headers("Authorization");
+            if (authToken == null) {
+                throw new UnauthorizedException("Error: unauthorized");
+            }
             AuthData data = AuthAccess.getAuth(authToken);
-            if (authToken == null || data == null) {
+            if (data == null) {
                 throw new UnauthorizedException("Error: unauthorized");
             }
             String username = data.username();
             JoinRequest user = new Gson().fromJson(req.body(), JoinRequest.class);
+            System.out.println("Parsed color: " + user.playerColor());
             GameService.join(user, username);
             return "";
         } catch(Exception e) {
@@ -54,6 +59,10 @@ public class Server {
             }
             if (e instanceof UnauthorizedException) {
                 res.status(401);
+                return new Gson().toJson(Map.of("message", e.getMessage()));
+            }
+            if (e instanceof TakenException) {
+                res.status(403);
                 return new Gson().toJson(Map.of("message", e.getMessage()));
             }
             res.status(500);
@@ -67,12 +76,7 @@ public class Server {
             if (authToken == null) {
                 throw new BadRequestException("Error: bad request");
             }
-            AuthData data = AuthAccess.getAuth(authToken);
-            if (data == null) {
-                throw new UnauthorizedException("Error: unauthorized");
-            }
-            ListRequest user = new ListRequest(authToken);
-            ListResult result = GameService.list(user);
+            ListResult result = GameService.list(authToken);
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
@@ -110,6 +114,10 @@ public class Server {
             }
             if (e instanceof UnauthorizedException) {
                 res.status(401);
+                return new Gson().toJson(Map.of("message", e.getMessage()));
+            }
+            if (e instanceof TakenException) {
+                res.status(403);
                 return new Gson().toJson(Map.of("message", e.getMessage()));
             }
             res.status(500);

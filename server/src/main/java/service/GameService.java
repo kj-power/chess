@@ -22,11 +22,11 @@ public class GameService {
         return new CreateResult(createRequest.gameName(), gameID);
     }
 
-    public static ListResult list(ListRequest listRequest) {
-        if (listRequest.authToken() == null) {
+    public static ListResult list(String authToken) {
+        if (authToken == null) {
             throw new BadRequestException("Error: bad request");
         }
-        if (AuthAccess.getAuth(listRequest.authToken()) == null) {
+        if (AuthAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         Collection<GameData> games = GameAccess.listGames();
@@ -34,6 +34,6 @@ public class GameService {
     }
 
     public static void join(JoinRequest joinRequest, String username) {
-        int gameID = GameAccess.joinGame(joinRequest.color(), joinRequest.gameID(), username);
+        GameAccess.joinGame(joinRequest.playerColor(), joinRequest.gameID(), username);
     }
 }
