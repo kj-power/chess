@@ -3,7 +3,10 @@ package service;
 import dataaccess.AuthAccess;
 import dataaccess.GameAccess;
 import dataaccess.UserAccess;
+import model.GameData;
 import model.UserData;
+
+import java.util.Collection;
 
 public class GameService {
 
@@ -17,5 +20,16 @@ public class GameService {
         }
         int gameID = GameAccess.createGame(createRequest.gameName());
         return new CreateResult(createRequest.gameName(), gameID);
+    }
+
+    public static ListResult list(ListRequest listRequest) {
+        if (listRequest.authToken() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+        if (AuthAccess.getAuth(listRequest.authToken()) == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        Collection<GameData> games = GameAccess.listGames();
+        return new ListResult(games);
     }
 }

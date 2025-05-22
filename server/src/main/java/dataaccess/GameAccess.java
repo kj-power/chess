@@ -17,13 +17,13 @@ public class GameAccess {
         return gameID;
     }
 
-    /*GameData getGame(int gameID) {
-        return(data.get(gameID))
+    public static GameData getGame(int gameName) {
+        return data.get(gameName);
     }
 
-    Collection<GameData> listGames() {
-        return data;
-    }*/
+    public static Collection<GameData> listGames() {
+        return data.values();
+    }
 
     public static void clear() {
         data.clear();

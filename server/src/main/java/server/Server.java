@@ -26,12 +26,41 @@ public class Server {
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.post("/game", this::create);
+        Spark.get("/game", this::list);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object list(Request req, Response res) {
+        try {
+            String authToken = req.headers("Authorization");
+            if (authToken == null) {
+                throw new BadRequestException("Error: bad request");
+            }
+            AuthData data = AuthAccess.getAuth(authToken);
+            if (data == null) {
+                throw new UnauthorizedException("Error: unauthorized");
+            }
+            ListRequest user = new ListRequest(authToken);
+            ListResult result = GameService.list(user);
+            res.type("application/json");
+            return new Gson().toJson(result);
+        } catch(Exception e) {
+            if (e instanceof BadRequestException) {
+                res.status(400);
+                return new Gson().toJson(Map.of("message", e.getMessage()));
+            }
+            if (e instanceof UnauthorizedException) {
+                res.status(401);
+                return new Gson().toJson(Map.of("message", e.getMessage()));
+            }
+            res.status(500);
+            return new Gson().toJson(Map.of("message", e.getMessage()));
+        }
     }
 
     private Object create(Request req, Response res) {
