@@ -9,11 +9,12 @@ import java.util.Random;
 public class GameAccess {
     private static final HashMap<String, GameData> data = new HashMap<>();
 
-    void createGame(String name) {
+    public static int createGame(String name) {
         Random random = new Random();
         int gameID = random.nextInt(100);
         GameData game = new GameData(gameID, null, null, name, new ChessGame());
         data.put(name, game);
+        return gameID;
     }
 
     /*GameData getGame(int gameID) {

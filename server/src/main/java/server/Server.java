@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.AuthAccess;
 import dataaccess.GameAccess;
 import dataaccess.UserAccess;
+import model.AuthData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import service.*;
@@ -24,12 +25,41 @@ public class Server {
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+        Spark.post("/game", this::create);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object create(Request req, Response res) {
+        try {
+            String authToken = req.headers("Authorization");
+            if (authToken == null) {
+                throw new BadRequestException("Error: bad request");
+            }
+            AuthData data = AuthAccess.getAuth(authToken);
+            if (data == null) {
+                throw new UnauthorizedException("Error: unauthorized");
+            }
+            CreateRequest user = new Gson().fromJson(req.body(), CreateRequest.class);
+            CreateResult result = GameService.create(user);
+            res.type("application/json");
+            return new Gson().toJson(result);
+        } catch(Exception e) {
+            if (e instanceof BadRequestException) {
+                res.status(400);
+                return new Gson().toJson(Map.of("message", e.getMessage()));
+            }
+            if (e instanceof UnauthorizedException) {
+                res.status(401);
+                return new Gson().toJson(Map.of("message", e.getMessage()));
+            }
+            res.status(500);
+            return new Gson().toJson(Map.of("message", e.getMessage()));
+        }
     }
 
     private Object logout(Request req, Response res) {
