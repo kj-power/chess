@@ -13,8 +13,8 @@ public class AuthAccess {
         data.put(username, new AuthData(token, username));
     }
 
-    public static AuthData getAuth(String token) {
-        return data.get(token);
+    public static AuthData getAuth(String username) {
+        return data.get(username);
     }
 
 

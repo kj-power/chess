@@ -4,35 +4,58 @@ import dataaccess.AuthAccess;
 import model.AuthData;
 import model.UserData;
 
+import java.util.Objects;
+
 public class UserService {
 
-    public RegisterResult register(RegisterRequest registerRequest) throws ServiceException{
+    public static RegisterResult register(RegisterRequest registerRequest) {
+        if (registerRequest.password() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+        if (registerRequest.username() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
         UserData user = UserAccess.getUser(registerRequest.username());
         if (user == null) {
             UserAccess.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
             AuthAccess.createAuth(registerRequest.username());
-            RegisterResult result = new RegisterResult(registerRequest.username(), AuthAccess.getToken(registerRequest.username()));
+            String token = AuthAccess.getAuth(registerRequest.username()).authToken();
+            RegisterResult result = new RegisterResult(registerRequest.username(), token);
             return result;
         }
         else {
-            throw new ServiceException("Error: already taken");
+            throw new TakenException("Error: already taken");
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ServiceException{
+    public static LoginResult login(LoginRequest loginRequest) {
+        if (loginRequest.password() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+        if (loginRequest.username() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
         UserData user = UserAccess.getUser(loginRequest.username());
         if (user == null) {
-            throw new ServiceException("Error: bad request");
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        if (!Objects.equals(user.password(), loginRequest.password())) {
+            throw new UnauthorizedException("Error: unauthorized");
         }
         AuthAccess.createAuth(loginRequest.username());
-        LoginResult result = new LoginResult(loginRequest.username(), AuthAccess.getToken(loginRequest.username()));
+        String token = AuthAccess.getAuth(loginRequest.username()).authToken();
+        LoginResult result = new LoginResult(loginRequest.username(), token);
         return result;
     }
 
-    public void logout(LogoutRequest logoutRequest) throws ServiceException{
+    public void logout(LogoutRequest logoutRequest) {
         AuthData data = AuthAccess.getAuth(logoutRequest.authToken());
         if (data == null) {
-            throw new ServiceException("Error: bad request");
+            throw new BadRequestException("Error: bad request");
         }
+    }
+
+    public static void delete() {
+        UserAccess.clear();
     }
 }
