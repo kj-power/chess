@@ -23,12 +23,30 @@ public class Server {
         Spark.post("/user", this::register);
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object logout(Request req, Response res) {
+        try {
+            String authToken = req.headers("Authorization");
+            LogoutRequest user = new LogoutRequest(authToken);
+            UserService.logout(user);
+            res.type("application/json");
+            return "";
+        } catch(Exception e) {
+            if (e instanceof UnauthorizedException) {
+                res.status(401);
+                return new Gson().toJson(Map.of("message", e.getMessage()));
+            }
+            res.status(500);
+            return new Gson().toJson(Map.of("message", e.getMessage()));
+        }
     }
 
     private Object login(Request req, Response res) {
@@ -46,6 +64,7 @@ public class Server {
                 res.status(401);
                 return new Gson().toJson(Map.of("message", e.getMessage()));
             }
+            res.status(500);
             return new Gson().toJson(Map.of("message", e.getMessage()));
         }
     }
@@ -70,6 +89,7 @@ public class Server {
                 res.status(400);
                 return new Gson().toJson(Map.of("message", e.getMessage()));
             }
+            res.status(500);
             return new Gson().toJson(Map.of("message", e.getMessage()));
         }
 
@@ -83,6 +103,7 @@ public class Server {
             res.status(200);
             return "";
         } catch(Exception e) {
+            res.status(500);
             return new Gson().toJson(Map.of("message", e.getMessage()));
         }
     }

@@ -18,8 +18,7 @@ public class UserService {
         UserData user = UserAccess.getUser(registerRequest.username());
         if (user == null) {
             UserAccess.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
-            AuthAccess.createAuth(registerRequest.username());
-            String token = AuthAccess.getAuth(registerRequest.username()).authToken();
+            String token = AuthAccess.createAuth(registerRequest.username());
             RegisterResult result = new RegisterResult(registerRequest.username(), token);
             return result;
         }
@@ -42,17 +41,23 @@ public class UserService {
         if (!Objects.equals(user.password(), loginRequest.password())) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-        AuthAccess.createAuth(loginRequest.username());
-        String token = AuthAccess.getAuth(loginRequest.username()).authToken();
+        String token = AuthAccess.createAuth(loginRequest.username());
         LoginResult result = new LoginResult(loginRequest.username(), token);
         return result;
     }
 
-    public void logout(LogoutRequest logoutRequest) {
+    public static void logout(LogoutRequest logoutRequest) {
+        if (logoutRequest == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        if (logoutRequest.authToken() == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
         AuthData data = AuthAccess.getAuth(logoutRequest.authToken());
         if (data == null) {
-            throw new BadRequestException("Error: bad request");
+            throw new UnauthorizedException("Error: unauthorized");
         }
+        AuthAccess.deleteToken(logoutRequest.authToken());
     }
 
     public static void delete() {
