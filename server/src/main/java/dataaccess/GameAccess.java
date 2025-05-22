@@ -1,33 +1,31 @@
 package dataaccess;
 import chess.ChessGame;
-import model.AuthData;
 import model.GameData;
 import service.BadRequestException;
 import service.TakenException;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Random;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 
 public class GameAccess {
-    private static final HashMap<Integer, GameData> data = new HashMap<>();
+    private static final HashMap<Integer, GameData> DATA_HASH_MAP = new HashMap<>();
 
     public static int createGame(String name) {
         int gameID;
         do {
             gameID = new Random().nextInt(Integer.MAX_VALUE);
-        } while (data.containsKey(gameID));
+        } while (DATA_HASH_MAP.containsKey(gameID));
         GameData game = new GameData(gameID, null, null, name, new ChessGame());
-        data.put(gameID, game);
+        DATA_HASH_MAP.put(gameID, game);
         return gameID;
     }
 
     public static GameData getGame(int gameID) {
-        return data.get(gameID);
+        return DATA_HASH_MAP.get(gameID);
     }
 
     public static void joinGame(ChessGame.TeamColor color, int gameID, String username) {
@@ -52,15 +50,15 @@ public class GameAccess {
         else {
             throw new BadRequestException("Error: bad request");
         }
-        data.put(gameID, newGame);
+        DATA_HASH_MAP.put(gameID, newGame);
     }
 
     public static Collection<GameData> listGames() {
-        return data.values();
+        return DATA_HASH_MAP.values();
     }
 
     public static void clear() {
-        data.clear();
+        DATA_HASH_MAP.clear();
     }
 
 }

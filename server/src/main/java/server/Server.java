@@ -2,11 +2,12 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.AuthAccess;
-import dataaccess.GameAccess;
-import dataaccess.UserAccess;
 import model.AuthData;
-import model.UserData;
-import org.eclipse.jetty.server.Authentication;
+import requests.*;
+import results.CreateResult;
+import results.ListResult;
+import results.LoginResult;
+import results.RegisterResult;
 import service.*;
 import spark.*;
 
@@ -36,6 +37,23 @@ public class Server {
         return Spark.port();
     }
 
+    private Object catchHelper(Response res, Exception e) {
+        if (e instanceof BadRequestException) {
+            res.status(400);
+            return new Gson().toJson(Map.of("message", e.getMessage()));
+        }
+        if (e instanceof UnauthorizedException) {
+            res.status(401);
+            return new Gson().toJson(Map.of("message", e.getMessage()));
+        }
+        if (e instanceof TakenException) {
+            res.status(403);
+            return new Gson().toJson(Map.of("message", e.getMessage()));
+        }
+        res.status(500);
+        return new Gson().toJson(Map.of("message", e.getMessage()));
+    }
+
     private Object join(Request req, Response res) {
         try {
             System.out.println("Raw body: " + req.body());
@@ -53,20 +71,7 @@ public class Server {
             GameService.join(user, username);
             return "";
         } catch(Exception e) {
-            if (e instanceof BadRequestException) {
-                res.status(400);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            if (e instanceof UnauthorizedException) {
-                res.status(401);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            if (e instanceof TakenException) {
-                res.status(403);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
+            return catchHelper(res, e);
         }
     }
 
@@ -108,20 +113,7 @@ public class Server {
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
-            if (e instanceof BadRequestException) {
-                res.status(400);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            if (e instanceof UnauthorizedException) {
-                res.status(401);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            if (e instanceof TakenException) {
-                res.status(403);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
+            return catchHelper(res, e);
         }
     }
 
@@ -133,12 +125,7 @@ public class Server {
             res.type("application/json");
             return "";
         } catch(Exception e) {
-            if (e instanceof UnauthorizedException) {
-                res.status(401);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
+            return catchHelper(res, e);
         }
     }
 
@@ -149,16 +136,7 @@ public class Server {
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
-            if (e instanceof BadRequestException) {
-                res.status(400);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            if (e instanceof UnauthorizedException) {
-                res.status(401);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
+            return catchHelper(res, e);
         }
     }
 
@@ -174,16 +152,7 @@ public class Server {
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
-            if (e instanceof TakenException) {
-                res.status(403);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            if (e instanceof BadRequestException) {
-                res.status(400);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
+            return catchHelper(res, e);
         }
 
     }
@@ -196,8 +165,7 @@ public class Server {
             res.status(200);
             return "";
         } catch(Exception e) {
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
+            return catchHelper(res, e);
         }
     }
 }

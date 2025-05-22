@@ -3,6 +3,11 @@ import dataaccess.UserAccess;
 import dataaccess.AuthAccess;
 import model.AuthData;
 import model.UserData;
+import requests.LoginRequest;
+import requests.LogoutRequest;
+import requests.RegisterRequest;
+import results.LoginResult;
+import results.RegisterResult;
 
 import java.util.Objects;
 

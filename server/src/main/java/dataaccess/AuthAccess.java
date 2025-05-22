@@ -1,30 +1,28 @@
 package dataaccess;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 import model.AuthData;
-import model.UserData;
 
 public class AuthAccess {
-    private static final HashMap<String, AuthData> data = new HashMap<>();
+    private static final HashMap<String, AuthData> DATA_HASH_MAP = new HashMap<>();
 
     public static String createAuth(String username) {
         String token = UUID.randomUUID().toString();
-        data.put(token, new AuthData(token, username));
+        DATA_HASH_MAP.put(token, new AuthData(token, username));
         return token;
     }
 
     public static AuthData getAuth(String token) {
-        return data.get(token);
+        return DATA_HASH_MAP.get(token);
     }
 
 
     public static void clear() {
-        data.clear();
+        DATA_HASH_MAP.clear();
     }
 
     public static void deleteToken(String token) {
-        data.remove(token);
+        DATA_HASH_MAP.remove(token);
     }
 
 }

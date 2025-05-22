@@ -2,9 +2,11 @@ package service;
 
 import dataaccess.AuthAccess;
 import dataaccess.GameAccess;
-import dataaccess.UserAccess;
 import model.GameData;
-import model.UserData;
+import requests.CreateRequest;
+import requests.JoinRequest;
+import results.CreateResult;
+import results.ListResult;
 
 import java.util.Collection;
 
