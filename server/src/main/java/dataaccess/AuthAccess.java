@@ -6,6 +6,13 @@ import model.AuthData;
 public class AuthAccess {
     private static final HashMap<String, AuthData> DATA_HASH_MAP = new HashMap<>();
 
+    public static boolean isEmpty() {
+        if (DATA_HASH_MAP.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
     public static String createAuth(String username) {
         String token = UUID.randomUUID().toString();
         DATA_HASH_MAP.put(token, new AuthData(token, username));

@@ -14,6 +14,13 @@ import static chess.ChessGame.TeamColor.WHITE;
 public class GameAccess {
     private static final HashMap<Integer, GameData> DATA_HASH_MAP = new HashMap<>();
 
+    public static boolean isEmpty() {
+        if (DATA_HASH_MAP.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
     public static int createGame(String name) {
         int gameID;
         do {

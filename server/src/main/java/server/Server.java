@@ -85,16 +85,7 @@ public class Server {
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
-            if (e instanceof BadRequestException) {
-                res.status(400);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            if (e instanceof UnauthorizedException) {
-                res.status(401);
-                return new Gson().toJson(Map.of("message", e.getMessage()));
-            }
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
+            return catchHelper(res, e);
         }
     }
 
