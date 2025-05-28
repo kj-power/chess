@@ -1,35 +1,19 @@
 package dataaccess;
-import java.util.HashMap;
-import java.util.UUID;
+
 import model.AuthData;
 
-public class AuthAccess {
-    private static final HashMap<String, AuthData> DATA_HASH_MAP = new HashMap<>();
+import javax.xml.crypto.Data;
+import java.util.UUID;
 
-    public static boolean isEmpty() {
-        if (DATA_HASH_MAP.isEmpty()) {
-            return true;
-        }
-        return false;
-    }
+public interface AuthAccess {
+    boolean isEmpty() throws DataAccessException;
 
-    public static String createAuth(String username) {
-        String token = UUID.randomUUID().toString();
-        DATA_HASH_MAP.put(token, new AuthData(token, username));
-        return token;
-    }
+    String createAuth(String username) throws DataAccessException;
 
-    public static AuthData getAuth(String token) {
-        return DATA_HASH_MAP.get(token);
-    }
+    AuthData getAuth(String token) throws DataAccessException;
 
 
-    public static void clear() {
-        DATA_HASH_MAP.clear();
-    }
+    void clear() throws DataAccessException;
 
-    public static void deleteToken(String token) {
-        DATA_HASH_MAP.remove(token);
-    }
-
+    void deleteToken(String token) throws DataAccessException;
 }

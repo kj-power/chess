@@ -1,7 +1,6 @@
 package service;
 
-import dataaccess.AuthAccess;
-import dataaccess.GameAccess;
+import dataaccess.*;
 import model.GameData;
 import requests.CreateRequest;
 import requests.JoinRequest;
@@ -12,30 +11,38 @@ import java.util.Collection;
 
 public class GameService {
 
-    public static void delete() {
-        GameAccess.clear();
+    private final GameAccess gameAccess;
+    private final AuthAccess authAccess;
+
+    public GameService(GameAccess gameAccess, AuthAccess authAccess) {
+        this.gameAccess = gameAccess;
+        this.authAccess = authAccess;
     }
 
-    public static CreateResult create(CreateRequest createRequest) {
+    public void delete() throws DataAccessException {
+        gameAccess.clear();
+    }
+
+    public CreateResult create(CreateRequest createRequest) throws DataAccessException {
         if (createRequest.gameName() == null) {
             throw new BadRequestException("Error: bad request");
         }
-        int gameID = GameAccess.createGame(createRequest.gameName());
+        int gameID = gameAccess.createGame(createRequest.gameName());
         return new CreateResult(createRequest.gameName(), gameID);
     }
 
-    public static ListResult list(String authToken) {
+    public ListResult list(String authToken) throws DataAccessException {
         if (authToken == null) {
             throw new BadRequestException("Error: bad request");
         }
-        if (AuthAccess.getAuth(authToken) == null) {
+        if (authAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-        Collection<GameData> games = GameAccess.listGames();
+        Collection<GameData> games = gameAccess.listGames();
         return new ListResult(games);
     }
 
-    public static void join(JoinRequest joinRequest, String username) {
-        GameAccess.joinGame(joinRequest.playerColor(), joinRequest.gameID(), username);
+    public void join(JoinRequest joinRequest, String username) throws DataAccessException {
+        gameAccess.joinGame(joinRequest.playerColor(), joinRequest.gameID(), username);
     }
 }

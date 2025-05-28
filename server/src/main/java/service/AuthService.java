@@ -1,11 +1,16 @@
 package service;
 
 import dataaccess.AuthAccess;
-import dataaccess.UserAccess;
+import dataaccess.DataAccessException;
 
 public class AuthService {
+    private final AuthAccess authAccess;
 
-    public static void delete() {
-        AuthAccess.clear();
+    public AuthService(AuthAccess authAccess) {
+        this.authAccess = authAccess;
+    }
+
+    public void delete() throws DataAccessException {
+        authAccess.clear();
     }
 }

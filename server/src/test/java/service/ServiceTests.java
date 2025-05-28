@@ -1,9 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.AuthAccess;
-import dataaccess.GameAccess;
-import dataaccess.UserAccess;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,25 +18,41 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
+    private UserService userService;
+    private GameService gameService;
+    private AuthService authService;
+    private AuthAccess authAccess;
+    private GameAccess gameAccess;
+    private UserAccess userAccess;
+
+    public ServiceTests() {
+    }
+
     @BeforeEach
-    public void setup() {
-        UserService.delete();
-        GameService.delete();
-        AuthService.delete();
+    public void setup() throws DataAccessException {
+        userAccess = new MemoryUserAccess();
+        authAccess = new MemoryAuthAccess();
+        gameAccess = new MemoryGameAccess();
+        userService = new UserService(userAccess, authAccess);
+        gameService = new GameService(gameAccess, authAccess);
+        authService = new AuthService(authAccess);
+        userService.delete();
+        gameService.delete();
+        authService.delete();
     }
 
     @Test
     @DisplayName("Register - Positive")
-    public void testRegisterPositive() {
+    public void testRegisterPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user1", "pass", "email@email.com");
-        RegisterResult result = UserService.register(request);
+        RegisterResult result = userService.register(request);
 
         assertNotNull(result);
         assertEquals("user1", result.username());
         assertEquals("user1", result.username());
 
         assertNotNull(result.authToken());
-        AuthData auth = AuthAccess.getAuth(result.authToken());
+        AuthData auth = authAccess.getAuth(result.authToken());
         assertNotNull(auth);
         assertEquals(result.username(), auth.username());
     }
@@ -50,14 +64,14 @@ public class ServiceTests {
             RegisterRequest request = new RegisterRequest(null, "pass", "email@email.com");
         };
         Exception exception = assertThrows(BadRequestException.class, () -> {
-            UserService.register(ref.request);
+            userService.register(ref.request);
         });
 
         assertEquals("Error: bad request", exception.getMessage());
 
         ref.request = new RegisterRequest("user1", null, "email@email.com");
         exception = assertThrows(BadRequestException.class, () -> {
-            UserService.register(ref.request);
+            userService.register(ref.request);
         });
 
         assertEquals("Error: bad request", exception.getMessage());
@@ -66,18 +80,18 @@ public class ServiceTests {
 
     @Test
     @DisplayName("Login - Positive")
-    public void testLoginPositive() {
+    public void testLoginPositive() throws DataAccessException {
         LoginRequest request = new LoginRequest("user1", "pass1");
         RegisterRequest regRequest = new RegisterRequest("user1", "pass1", "email@email.com");
-        UserService.register(regRequest);
-        LoginResult result = UserService.login(request);
+        userService.register(regRequest);
+        LoginResult result = userService.login(request);
 
         assertNotNull(result);
         assertEquals("user1", result.username());
         assertEquals("user1", result.username());
 
         assertNotNull(result.authToken());
-        AuthData auth = AuthAccess.getAuth(result.authToken());
+        AuthData auth = authAccess.getAuth(result.authToken());
         assertNotNull(auth);
         assertEquals(result.username(), auth.username());
     }
@@ -89,14 +103,14 @@ public class ServiceTests {
             LoginRequest request = new LoginRequest(null, "pass");
         };
         Exception exception = assertThrows(BadRequestException.class, () -> {
-            UserService.login(ref.request);
+            userService.login(ref.request);
         });
 
         assertEquals("Error: bad request", exception.getMessage());
 
         ref.request = new LoginRequest("user1", null);
         exception = assertThrows(BadRequestException.class, () -> {
-            UserService.login(ref.request);
+            userService.login(ref.request);
         });
 
         assertEquals("Error: bad request", exception.getMessage());
@@ -105,36 +119,36 @@ public class ServiceTests {
 
     @Test
     @DisplayName("Clear - Positive")
-    public void testClearPositive() {
+    public void testClearPositive() throws DataAccessException {
         RegisterRequest regRequest = new RegisterRequest("user1", "pass", "email@email.com");
-        RegisterResult regResult = UserService.register(regRequest);
+        RegisterResult regResult = userService.register(regRequest);
         CreateRequest createRequest = new CreateRequest("game1");
-        CreateResult createResult = GameService.create(createRequest);
+        CreateResult createResult = gameService.create(createRequest);
 
-        assertFalse(AuthAccess.isEmpty());
-        assertFalse(GameAccess.isEmpty());
-        assertFalse(UserAccess.isEmpty());
+        assertFalse(authAccess.isEmpty());
+        assertFalse(gameAccess.isEmpty());
+        assertFalse(userAccess.isEmpty());
 
-        UserService.delete();
-        GameService.delete();
-        AuthService.delete();
+        userService.delete();
+        gameService.delete();
+        authService.delete();
 
-        assertTrue(AuthAccess.isEmpty());
-        assertTrue(GameAccess.isEmpty());
-        assertTrue(UserAccess.isEmpty());
+        assertTrue(authAccess.isEmpty());
+        assertTrue(gameAccess.isEmpty());
+        assertTrue(userAccess.isEmpty());
 
     }
 
     @Test
     @DisplayName("Create - Positive")
-    public void testCreatePositive() {
+    public void testCreatePositive() throws DataAccessException {
         CreateRequest request = new CreateRequest("game1");
-        CreateResult result = GameService.create(request);
+        CreateResult result = gameService.create(request);
 
         assertNotNull(result);
         assertEquals("game1", result.gameName());
 
-        GameData game = GameAccess.getGame(result.gameID());
+        GameData game = gameAccess.getGame(result.gameID());
         assertNotNull(game);
         assertEquals(result.gameID(), game.gameID());
     }
@@ -146,7 +160,7 @@ public class ServiceTests {
             CreateRequest request = new CreateRequest(null);
         };
         Exception exception = assertThrows(BadRequestException.class, () -> {
-            GameService.create(ref.request);
+            gameService.create(ref.request);
         });
 
         assertEquals("Error: bad request", exception.getMessage());
@@ -155,39 +169,39 @@ public class ServiceTests {
 
     @Test
     @DisplayName("Join - Positive")
-    public void testJoinPositive() {
+    public void testJoinPositive() throws DataAccessException {
         CreateRequest createRequest = new CreateRequest("game1");
-        CreateResult createResult = GameService.create(createRequest);
+        CreateResult createResult = gameService.create(createRequest);
 
-        GameData game = GameAccess.getGame(createResult.gameID());
+        GameData game = gameAccess.getGame(createResult.gameID());
         int gameID = game.gameID();
 
         JoinRequest request = new JoinRequest(ChessGame.TeamColor.WHITE, gameID);
-        GameService.join(request, "user1");
-        game = GameAccess.getGame(createResult.gameID());
+        gameService.join(request, "user1");
+        game = gameAccess.getGame(createResult.gameID());
 
-        assertFalse(GameAccess.isEmpty());
+        assertFalse(gameAccess.isEmpty());
         assertEquals("user1", game.whiteUsername());
     }
 
     @Test
     @DisplayName("Join - Negative")
-    public void testJoinNegative() {
+    public void testJoinNegative() throws DataAccessException {
         CreateRequest createRequest = new CreateRequest("game1");
-        CreateResult createResult = GameService.create(createRequest);
+        CreateResult createResult = gameService.create(createRequest);
 
-        GameData game = GameAccess.getGame(createResult.gameID());
+        GameData game = gameAccess.getGame(createResult.gameID());
         int gameID = game.gameID();
 
         var ref = new Object() {
             JoinRequest request = new JoinRequest(ChessGame.TeamColor.WHITE, gameID);
         };
-        GameService.join(ref.request, "user1");
+        gameService.join(ref.request, "user1");
 
         ref.request = new JoinRequest(ChessGame.TeamColor.WHITE, gameID);
 
         Exception exception = assertThrows(TakenException.class, () -> {
-            GameService.join(ref.request, "user2");
+            gameService.join(ref.request, "user2");
         });
 
         assertEquals("Error: already taken", exception.getMessage());
@@ -196,30 +210,30 @@ public class ServiceTests {
 
     @Test
     @DisplayName("Logout - Positive")
-    public void testLogoutPositive() {
+    public void testLogoutPositive() throws DataAccessException {
         LoginRequest loginRequest = new LoginRequest("user1", "pass1");
         RegisterRequest regRequest = new RegisterRequest("user1", "pass1", "email@email.com");
-        UserService.register(regRequest);
-        LoginResult loginResult = UserService.login(loginRequest);
+        userService.register(regRequest);
+        LoginResult loginResult = userService.login(loginRequest);
         LogoutRequest logoutRequest = new LogoutRequest(loginResult.authToken());
-        UserService.logout(logoutRequest);
-        AuthData auth = AuthAccess.getAuth(loginResult.authToken());
+        userService.logout(logoutRequest);
+        AuthData auth = authAccess.getAuth(loginResult.authToken());
 
         assertNull(auth);
     }
 
     @Test
     @DisplayName("Logout - Negative")
-    public void testLogoutNegative() {
+    public void testLogoutNegative() throws DataAccessException {
         LoginRequest loginRequest = new LoginRequest("user1", "pass1");
         RegisterRequest regRequest = new RegisterRequest("user1", "pass1", "email@email.com");
-        UserService.register(regRequest);
-        LoginResult loginResult = UserService.login(loginRequest);
+        userService.register(regRequest);
+        LoginResult loginResult = userService.login(loginRequest);
         LogoutRequest logoutRequest = new LogoutRequest(loginResult.authToken());
-        UserService.logout(logoutRequest);
+        userService.logout(logoutRequest);
 
         Exception exception = assertThrows(UnauthorizedException.class, () -> {
-            UserService.logout(logoutRequest);
+            userService.logout(logoutRequest);
         });
 
         assertEquals("Error: unauthorized", exception.getMessage());
@@ -229,21 +243,21 @@ public class ServiceTests {
 
     @Test
     @DisplayName("List - Positive")
-    public void testListPositive() {
+    public void testListPositive() throws DataAccessException {
         RegisterRequest regRequest = new RegisterRequest("user1", "pass1", "email@email.com");
-        RegisterResult regResult = UserService.register(regRequest);
+        RegisterResult regResult = userService.register(regRequest);
         String token = regResult.authToken();
 
         CreateRequest createRequest = new CreateRequest("game1");
-        CreateResult createResult = GameService.create(createRequest);
+        CreateResult createResult = gameService.create(createRequest);
 
         createRequest = new CreateRequest("game2");
-        createResult = GameService.create(createRequest);
+        createResult = gameService.create(createRequest);
 
         createRequest = new CreateRequest("game3");
-        createResult = GameService.create(createRequest);
+        createResult = gameService.create(createRequest);
 
-        ListResult listResult = GameService.list(token);
+        ListResult listResult = gameService.list(token);
 
         assertNotNull(listResult);
         assertNotNull(listResult.games());
@@ -261,18 +275,18 @@ public class ServiceTests {
 
     @Test
     @DisplayName("List - Negative")
-    public void testListNegative() {
+    public void testListNegative() throws DataAccessException {
         CreateRequest createRequest = new CreateRequest("game1");
-        CreateResult createResult = GameService.create(createRequest);
+        CreateResult createResult = gameService.create(createRequest);
 
         createRequest = new CreateRequest("game2");
-        createResult = GameService.create(createRequest);
+        createResult = gameService.create(createRequest);
 
         createRequest = new CreateRequest("game3");
-        createResult = GameService.create(createRequest);
+        createResult = gameService.create(createRequest);
 
         Exception exception = assertThrows(UnauthorizedException.class, () -> {
-            GameService.list("badToken");
+            gameService.list("badToken");
         });
 
         assertEquals("Error: unauthorized", exception.getMessage());

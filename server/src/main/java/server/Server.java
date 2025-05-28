@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.AuthAccess;
+import dataaccess.*;
 import model.AuthData;
 import requests.*;
 import results.CreateResult;
@@ -14,6 +14,22 @@ import spark.*;
 import java.util.Map;
 
 public class Server {
+
+    private final UserService userService;
+    private final AuthService authService;
+    private final AuthAccess authAccess;
+    private final UserAccess userAccess;
+    private final GameService gameService;
+    private final GameAccess gameAccess;
+
+    public Server() {
+        userAccess = new MemoryUserAccess();
+        authAccess = new MemoryAuthAccess();
+        gameAccess = new MemoryGameAccess();
+        userService = new UserService(userAccess, authAccess);
+        authService = new AuthService(authAccess);
+        gameService = new GameService(gameAccess, authAccess);
+    }
 
     public int run(int desiredPort) {
 
@@ -61,14 +77,14 @@ public class Server {
             if (authToken == null) {
                 throw new UnauthorizedException("Error: unauthorized");
             }
-            AuthData data = AuthAccess.getAuth(authToken);
+            AuthData data = authAccess.getAuth(authToken);
             if (data == null) {
                 throw new UnauthorizedException("Error: unauthorized");
             }
             String username = data.username();
             JoinRequest user = new Gson().fromJson(req.body(), JoinRequest.class);
             System.out.println("Parsed color: " + user.playerColor());
-            GameService.join(user, username);
+            gameService.join(user, username);
             return "";
         } catch(Exception e) {
             return catchHelper(res, e);
@@ -81,7 +97,7 @@ public class Server {
             if (authToken == null) {
                 throw new BadRequestException("Error: bad request");
             }
-            ListResult result = GameService.list(authToken);
+            ListResult result = gameService.list(authToken);
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
@@ -95,12 +111,12 @@ public class Server {
             if (authToken == null) {
                 throw new BadRequestException("Error: bad request");
             }
-            AuthData data = AuthAccess.getAuth(authToken);
+            AuthData data = authAccess.getAuth(authToken);
             if (data == null) {
                 throw new UnauthorizedException("Error: unauthorized");
             }
             CreateRequest user = new Gson().fromJson(req.body(), CreateRequest.class);
-            CreateResult result = GameService.create(user);
+            CreateResult result = gameService.create(user);
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
@@ -112,7 +128,7 @@ public class Server {
         try {
             String authToken = req.headers("Authorization");
             LogoutRequest user = new LogoutRequest(authToken);
-            UserService.logout(user);
+            userService.logout(user);
             res.type("application/json");
             return "";
         } catch(Exception e) {
@@ -123,7 +139,7 @@ public class Server {
     private Object login(Request req, Response res) {
         try {
             LoginRequest user = new Gson().fromJson(req.body(), LoginRequest.class);
-            LoginResult result = UserService.login(user);
+            LoginResult result = userService.login(user);
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
@@ -139,7 +155,7 @@ public class Server {
     private Object register(Request req, Response res) {
         try {
             RegisterRequest user = new Gson().fromJson(req.body(), RegisterRequest.class);
-            RegisterResult result = UserService.register(user);
+            RegisterResult result = userService.register(user);
             res.type("application/json");
             return new Gson().toJson(result);
         } catch(Exception e) {
@@ -150,9 +166,9 @@ public class Server {
 
     private Object clear(Request req, Response res) {
         try {
-            UserService.delete();
-            GameService.delete();
-            AuthService.delete();
+            userService.delete();
+            gameService.delete();
+            authService.delete();
             res.status(200);
             return "";
         } catch(Exception e) {
