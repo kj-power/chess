@@ -55,7 +55,7 @@ public class UserService {
             throw new UnauthorizedException("Error: unauthorized");
         }
         String hashedPassword = user.password();
-        if (BCrypt.checkpw(loginRequest.password(), hashedPassword)) {
+        if (!BCrypt.checkpw(loginRequest.password(), hashedPassword)) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         String token = authAccess.createAuth(loginRequest.username());
