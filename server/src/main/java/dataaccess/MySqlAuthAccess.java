@@ -46,15 +46,15 @@ public class MySqlAuthAccess implements AuthAccess {
         }
     }
 
-    public AuthData getAuth(String token) throws DataAccessException {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username FROM auth WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, token);
+                ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         var username = rs.getString("username");
-                        return new AuthData(username, token);
+                        return new AuthData(authToken, username);
                     } else {
                         return null;
                     }
@@ -103,7 +103,7 @@ public class MySqlAuthAccess implements AuthAccess {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS auth (
-            token VARCHAR(256) PRIMARY KEY,
+            authToken VARCHAR(256) PRIMARY KEY,
             username VARCHAR(256) NOT NULL
             )
             """

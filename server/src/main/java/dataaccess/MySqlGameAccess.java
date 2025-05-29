@@ -86,8 +86,8 @@ public class MySqlGameAccess implements GameAccess{
 
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
-                ps.setNull(2, NULL);  // whiteUsername
-                ps.setNull(3, NULL);  // blackUsername
+                ps.setNull(2, NULL);
+                ps.setNull(3, NULL);
                 ps.setString(4, name);
                 ps.setString(5, gameJson);
                 ps.executeUpdate();
@@ -126,6 +126,7 @@ public class MySqlGameAccess implements GameAccess{
 
     @Override
     public void joinGame(ChessGame.TeamColor color, int gameID, String username) throws DataAccessException, SQLException {
+
         GameData game = getGame(gameID);
         if (game == null) {
             throw new BadRequestException("Error:bad request");
