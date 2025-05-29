@@ -3,6 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,10 +20,12 @@ public class DAOTests {
     private AuthService authService;
     private AuthAccess authAccess;
     private GameAccess gameAccess;
+    private UserAccess userAccess;
 
     {
         try {
             gameAccess = new MySqlGameAccess();
+            userAccess = new MySqlUserAccess();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         } catch (SQLException e) {
@@ -30,7 +33,6 @@ public class DAOTests {
         }
     }
 
-    private UserAccess userAccess;
     private final ServiceTests serviceTests;
 
     public DAOTests() {
@@ -187,7 +189,7 @@ public class DAOTests {
 
     @Test
     @DisplayName("listGames - Positive")
-    void listGames_Positive() throws DataAccessException {
+    void listGamesSuccess() throws DataAccessException {
         gameAccess.createGame("Game 1");
         gameAccess.createGame("Game 2");
 
@@ -205,7 +207,7 @@ public class DAOTests {
 
     @Test
     @DisplayName("listGames - Negative - DB Error")
-    void listGames_DBError_ThrowsException() throws Exception {
+    void listGamesFail() throws Exception {
         try (var conn = DatabaseManager.getConnection()) {
             conn.createStatement().execute("DROP TABLE IF EXISTS game");
         }
@@ -213,6 +215,47 @@ public class DAOTests {
         assertThrows(DataAccessException.class, () -> {
             gameAccess.listGames();
         });
+    }
+
+    @Test
+    @DisplayName("createUser - Positive")
+    void createUserSuccess() throws DataAccessException {
+        userAccess.createUser("testuser", "password123", "test@example.com");
+
+        UserData user = userAccess.getUser("testuser");
+        assertNotNull(user);
+        assertEquals("testuser", user.username());
+        assertEquals("password123", user.password());
+        assertEquals("test@example.com", user.email());
+    }
+
+    @Test
+    @DisplayName("createUser - Negative - Duplicate User")
+    void createUserFail() throws DataAccessException {
+        userAccess.createUser("duplicateUser", "pass", "dup@example.com");
+
+        assertThrows(DataAccessException.class, () -> {
+            userAccess.createUser("duplicateUser", "pass2", "dup2@example.com");
+        });
+    }
+
+    @Test
+    @DisplayName("getUser - Positive")
+    void getUserSuccess() throws DataAccessException {
+        userAccess.createUser("findMe", "mypassword", "findme@example.com");
+
+        UserData user = userAccess.getUser("findMe");
+        assertNotNull(user);
+        assertEquals("findMe", user.username());
+        assertEquals("mypassword", user.password());
+        assertEquals("findme@example.com", user.email());
+    }
+
+    @Test
+    @DisplayName("getUser - Negative - User Not Found")
+    void getUserFail() throws DataAccessException {
+        UserData user = userAccess.getUser("nonexistentUser");
+        assertNull(user);
     }
 
 }
