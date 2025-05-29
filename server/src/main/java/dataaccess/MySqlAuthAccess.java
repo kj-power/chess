@@ -12,23 +12,16 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class MySqlAuthAccess implements AuthAccess {
+    private DatabaseManager db = new DatabaseManager();
+
     public MySqlAuthAccess() throws DataAccessException, SQLException {
     }
 
     private static final HashMap<String, AuthData> DATA_HASH_MAP = new HashMap<>();
 
     public boolean isEmpty() throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT COUNT(*) FROM auth";
-            try (var ps = conn.prepareStatement(statement);
-                 var rs = ps.executeQuery()) {
-                rs.next();
-                int count = rs.getInt(1);
-                return count == 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: unable to check if auth table is empty");
-        }
+        String tableName = "auth";
+        return db.isEmpty(tableName);
     }
 
     public String createAuth(String username) throws DataAccessException {
@@ -65,39 +58,15 @@ public class MySqlAuthAccess implements AuthAccess {
         }
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof AuthData p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: unable to update database");
-        }
-    }
-
 
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE TABLE auth";
-        executeUpdate(statement);
+        db.executeUpdate(statement);
     }
 
     public void deleteToken(String token) throws DataAccessException {
         var statement = "DELETE FROM auth WHERE authToken=?";
-        executeUpdate(statement, token);
+        db.executeUpdate(statement, token);
     }
 
     private final String[] createStatements = {
@@ -109,16 +78,4 @@ public class MySqlAuthAccess implements AuthAccess {
             """
     };
 
-    private void configureDatabase() throws SQLException, DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Error: Unable to configure database");
-        }
-    }
 }

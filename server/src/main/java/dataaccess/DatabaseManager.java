@@ -1,7 +1,12 @@
 package dataaccess;
 
+import model.AuthData;
+
 import java.sql.*;
 import java.util.Properties;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class DatabaseManager {
     private static String databaseName;
@@ -50,6 +55,44 @@ public class DatabaseManager {
             return conn;
         } catch (SQLException ex) {
             throw new DataAccessException("failed to get connection", ex);
+        }
+    }
+
+    public boolean isEmpty(String tableName) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String statement = "SELECT COUNT(*) FROM " + tableName;
+            try (var ps = conn.prepareStatement(statement);
+                 var rs = ps.executeQuery()) {
+                rs.next();
+                int count = rs.getInt(1);
+                return count == 0;
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException("Error: unable to check if auth table is empty");
+        }
+    }
+
+    int executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    else if (param instanceof AuthData p) ps.setString(i + 1, p.toString());
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ps.executeUpdate();
+
+                var rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unable to update database");
         }
     }
 

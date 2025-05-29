@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -11,22 +12,13 @@ import static java.sql.Types.NULL;
 
 public class MySqlUserAccess implements UserAccess{
 
-
+    private DatabaseManager db = new DatabaseManager();
     public MySqlUserAccess() throws DataAccessException, SQLException {
     }
 
     public boolean isEmpty() throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT COUNT(*) FROM user";
-            try (var ps = conn.prepareStatement(statement);
-                 var rs = ps.executeQuery()) {
-                rs.next();
-                int count = rs.getInt(1);
-                return count == 0;
-            }
-        } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Error: unable to check if auth table is empty");
-        }
+        String tableName = "user";
+        return db.isEmpty(tableName);
     }
 
     public void createUser(String username, String password, String email) throws DataAccessException {
@@ -63,33 +55,11 @@ public class MySqlUserAccess implements UserAccess{
         }
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof AuthData p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
 
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: unable to update database");
-        }
-    }
 
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE TABLE user";
-        executeUpdate(statement);
+        db.executeUpdate(statement);
     }
 
     private final String[] createStatements = {
@@ -101,18 +71,5 @@ public class MySqlUserAccess implements UserAccess{
               PRIMARY KEY (username)
             )"""
     };
-
-    private void configureDatabase() throws SQLException, DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Error: unable to configure database"));
-        }
-    }
 
 }

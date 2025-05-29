@@ -30,10 +30,10 @@ public class ServiceTests {
     }
 
     @BeforeEach
-    public void setup() throws DataAccessException {
-        userAccess = new MemoryUserAccess();
-        authAccess = new MemoryAuthAccess();
-        gameAccess = new MemoryGameAccess();
+    public void setup() throws DataAccessException, SQLException {
+        userAccess = new MySqlUserAccess();
+        authAccess = new MySqlAuthAccess();
+        gameAccess = new MySqlGameAccess();
         userService = new UserService(userAccess, authAccess);
         gameService = new GameService(gameAccess, authAccess);
         authService = new AuthService(authAccess);
