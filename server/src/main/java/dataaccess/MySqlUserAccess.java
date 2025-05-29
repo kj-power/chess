@@ -25,7 +25,7 @@ public class MySqlUserAccess implements UserAccess{
                 return count == 0;
             }
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Unable to check if auth table is empty");
+            throw new DataAccessException("Error: unable to check if auth table is empty");
         }
     }
 
@@ -39,7 +39,7 @@ public class MySqlUserAccess implements UserAccess{
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to read data");
+            throw new DataAccessException("Error: unable to read data");
         }
     }
 
@@ -59,7 +59,7 @@ public class MySqlUserAccess implements UserAccess{
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Unable to read data");
+            throw new DataAccessException("Error: unable to read data");
         }
     }
 
@@ -83,7 +83,7 @@ public class MySqlUserAccess implements UserAccess{
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("unable to update database");
+            throw new DataAccessException("Error: unable to update database");
         }
     }
 
@@ -111,7 +111,7 @@ public class MySqlUserAccess implements UserAccess{
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database"));
+            throw new DataAccessException(String.format("Error: unable to configure database"));
         }
     }
 

@@ -32,7 +32,7 @@ public class MySqlGameAccess implements GameAccess{
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database"));
+            throw new DataAccessException("Error: unable to configure database");
         }
     }
 
@@ -56,14 +56,14 @@ public class MySqlGameAccess implements GameAccess{
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("unable to update database");
+            throw new DataAccessException("Error: unable to update database");
         }
     }
 
     @Override
     public boolean isEmpty() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT COUNT(*) FROM auth";
+            var statement = "SELECT COUNT(*) FROM game";
             try (var ps = conn.prepareStatement(statement);
                  var rs = ps.executeQuery()) {
                 rs.next();
@@ -71,7 +71,7 @@ public class MySqlGameAccess implements GameAccess{
                 return count == 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to check if auth table is empty");
+            throw new DataAccessException("Error: unable to check if auth table is empty");
         }
     }
 
@@ -94,7 +94,7 @@ public class MySqlGameAccess implements GameAccess{
                 return gameID;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to create game", e);
+            throw new DataAccessException("Error: unable to create game", e);
         }
     }
 
@@ -120,7 +120,7 @@ public class MySqlGameAccess implements GameAccess{
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Unable to read data");
+            throw new DataAccessException("Error: unable to read data");
         }
     }
 
@@ -156,7 +156,7 @@ public class MySqlGameAccess implements GameAccess{
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to update game", e);
+            throw new DataAccessException("Error: unable to update game", e);
         }
     }
 
@@ -183,7 +183,7 @@ public class MySqlGameAccess implements GameAccess{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to list games", e);
+            throw new DataAccessException("Error: unable to list games", e);
         }
 
         return games;

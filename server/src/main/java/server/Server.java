@@ -68,7 +68,7 @@ public class Server {
             return new Gson().toJson(Map.of("message", e.getMessage()));
         }
         res.status(500);
-        return new Gson().toJson(Map.of("message", e.getMessage()));
+        return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
     }
 
     private Object join(Request req, Response res) {
