@@ -23,10 +23,16 @@ public class Server {
     private final GameService gameService;
     private final GameAccess gameAccess;
 
-    public Server() throws SQLException, DataAccessException {
-        userAccess = new MySqlUserAccess();
-        authAccess = new MySqlAuthAccess();
-        gameAccess = new MySqlGameAccess();
+    public Server() {
+        try {
+            userAccess = new MySqlUserAccess();
+            authAccess = new MySqlAuthAccess();
+            gameAccess = new MySqlGameAccess();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         userService = new UserService(userAccess, authAccess);
         authService = new AuthService(authAccess);
         gameService = new GameService(gameAccess, authAccess);
