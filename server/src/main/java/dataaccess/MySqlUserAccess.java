@@ -10,8 +10,9 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class MySqlUserAccess implements UserAccess{
+
+
     public MySqlUserAccess() throws DataAccessException, SQLException {
-        configureDatabase();
     }
 
     public boolean isEmpty() throws DataAccessException {

@@ -13,6 +13,7 @@ import results.ListResult;
 import results.LoginResult;
 import results.RegisterResult;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -169,7 +170,7 @@ public class ServiceTests {
 
     @Test
     @DisplayName("Join - Positive")
-    public void testJoinPositive() throws DataAccessException {
+    public void testJoinPositive() throws DataAccessException, SQLException {
         CreateRequest createRequest = new CreateRequest("game1");
         CreateResult createResult = gameService.create(createRequest);
 
@@ -186,7 +187,7 @@ public class ServiceTests {
 
     @Test
     @DisplayName("Join - Negative")
-    public void testJoinNegative() throws DataAccessException {
+    public void testJoinNegative() throws DataAccessException, SQLException {
         CreateRequest createRequest = new CreateRequest("game1");
         CreateResult createResult = gameService.create(createRequest);
 

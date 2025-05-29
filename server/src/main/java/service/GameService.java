@@ -7,6 +7,7 @@ import requests.JoinRequest;
 import results.CreateResult;
 import results.ListResult;
 
+import java.sql.SQLException;
 import java.util.Collection;
 
 public class GameService {
@@ -42,7 +43,7 @@ public class GameService {
         return new ListResult(games);
     }
 
-    public void join(JoinRequest joinRequest, String username) throws DataAccessException {
+    public void join(JoinRequest joinRequest, String username) throws DataAccessException, SQLException {
         gameAccess.joinGame(joinRequest.playerColor(), joinRequest.gameID(), username);
     }
 }

@@ -5,6 +5,7 @@ import model.GameData;
 import service.BadRequestException;
 import service.TakenException;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Random;
 
@@ -18,7 +19,7 @@ public interface GameAccess {
 
     GameData getGame(int gameID) throws DataAccessException;
 
-    void joinGame(ChessGame.TeamColor color, int gameID, String username) throws DataAccessException;
+    void joinGame(ChessGame.TeamColor color, int gameID, String username) throws DataAccessException, SQLException;
 
     Collection<GameData> listGames() throws DataAccessException;
 

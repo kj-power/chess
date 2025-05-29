@@ -13,7 +13,6 @@ import static java.sql.Types.NULL;
 
 public class MySqlAuthAccess implements AuthAccess {
     public MySqlAuthAccess() throws DataAccessException, SQLException {
-        configureDatabase();
     }
 
     private static final HashMap<String, AuthData> DATA_HASH_MAP = new HashMap<>();
@@ -103,11 +102,11 @@ public class MySqlAuthAccess implements AuthAccess {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  auth (
-              username varchar(256) NOT NULL,
-              authToken varchar(256) NOT NULL,
-              PRIMARY KEY (authToken)
-            )"""
+            CREATE TABLE IF NOT EXISTS auth (
+            token VARCHAR(256) PRIMARY KEY,
+            username VARCHAR(256) NOT NULL
+            )
+            """
     };
 
     private void configureDatabase() throws SQLException, DataAccessException {

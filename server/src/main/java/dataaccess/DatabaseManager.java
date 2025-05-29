@@ -45,6 +45,7 @@ public class DatabaseManager {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
+            conn.setAutoCommit(true);
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {

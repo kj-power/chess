@@ -26,7 +26,7 @@ public class Server {
     public Server() throws SQLException, DataAccessException {
         userAccess = new MySqlUserAccess();
         authAccess = new MySqlAuthAccess();
-        gameAccess = new MemoryGameAccess();
+        gameAccess = new MySqlGameAccess();
         userService = new UserService(userAccess, authAccess);
         authService = new AuthService(authAccess);
         gameService = new GameService(gameAccess, authAccess);
@@ -83,8 +83,9 @@ public class Server {
                 throw new UnauthorizedException("Error: unauthorized");
             }
             String username = data.username();
+            System.out.println("Parsed color: " + username);
             JoinRequest user = new Gson().fromJson(req.body(), JoinRequest.class);
-            System.out.println("Parsed color: " + user.playerColor());
+
             gameService.join(user, username);
             return "";
         } catch(Exception e) {
