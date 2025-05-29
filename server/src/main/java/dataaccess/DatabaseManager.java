@@ -58,6 +58,19 @@ public class DatabaseManager {
         }
     }
 
+    void configureDatabase(String[] createStatements) throws SQLException, DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Unable to configure database"));
+        }
+    }
+
     public boolean isEmpty(String tableName) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             String statement = "SELECT COUNT(*) FROM " + tableName;

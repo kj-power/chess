@@ -15,6 +15,7 @@ public class MySqlAuthAccess implements AuthAccess {
     private DatabaseManager db = new DatabaseManager();
 
     public MySqlAuthAccess() throws DataAccessException, SQLException {
+        db.configureDatabase(createStatements);
     }
 
     private static final HashMap<String, AuthData> DATA_HASH_MAP = new HashMap<>();
@@ -72,10 +73,10 @@ public class MySqlAuthAccess implements AuthAccess {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS auth (
-            authToken VARCHAR(256) PRIMARY KEY,
-            username VARCHAR(256) NOT NULL
-            )
-            """
+              username varchar(256) NOT NULL,
+              authToken varchar(256) NOT NULL,
+              PRIMARY KEY (authToken)
+            )"""
     };
 
 }

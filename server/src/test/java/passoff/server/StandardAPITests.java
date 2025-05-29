@@ -1,13 +1,11 @@
 package passoff.server;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import server.Server;
 
 import java.net.HttpURLConnection;
-import java.sql.SQLException;
 import java.util.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -69,7 +67,6 @@ public class StandardAPITests {
         TestAuthResult loginResult = serverFacade.login(existingUser);
 
         assertHttpOk(loginResult);
-
         Assertions.assertEquals(existingUser.getUsername(), loginResult.getUsername(),
                 "Response did not give the same username as user");
         Assertions.assertNotNull(loginResult.getAuthToken(), "Response did not return authentication String");

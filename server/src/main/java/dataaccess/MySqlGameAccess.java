@@ -21,9 +21,9 @@ import static java.sql.Types.NULL;
 
 public class MySqlGameAccess implements GameAccess{
     public MySqlGameAccess() throws DataAccessException, SQLException {
+        db.configureDatabase(createStatements);
     }
     private DatabaseManager db = new DatabaseManager();
-
 
     @Override
     public boolean isEmpty() throws DataAccessException {

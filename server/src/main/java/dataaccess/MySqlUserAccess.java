@@ -14,12 +14,15 @@ public class MySqlUserAccess implements UserAccess{
 
     private DatabaseManager db = new DatabaseManager();
     public MySqlUserAccess() throws DataAccessException, SQLException {
+        db.configureDatabase(createStatements);
     }
 
     public boolean isEmpty() throws DataAccessException {
         String tableName = "user";
         return db.isEmpty(tableName);
     }
+
+
 
     public void createUser(String username, String password, String email) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
