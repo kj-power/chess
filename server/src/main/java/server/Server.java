@@ -11,6 +11,7 @@ import results.RegisterResult;
 import service.*;
 import spark.*;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 public class Server {
@@ -22,9 +23,9 @@ public class Server {
     private final GameService gameService;
     private final GameAccess gameAccess;
 
-    public Server() {
-        userAccess = new MemoryUserAccess();
-        authAccess = new MemoryAuthAccess();
+    public Server() throws SQLException, DataAccessException {
+        userAccess = new MySqlUserAccess();
+        authAccess = new MySqlAuthAccess();
         gameAccess = new MemoryGameAccess();
         userService = new UserService(userAccess, authAccess);
         authService = new AuthService(authAccess);

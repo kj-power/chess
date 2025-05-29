@@ -6,12 +6,14 @@ import service.GameService;
 import service.UserService;
 import spark.Spark;
 
+import java.sql.SQLException;
+
 
 public class Main {
 
-    public static void main(String[] args) {
-        UserAccess userAccess = new MemoryUserAccess();
-        AuthAccess authAccess = new MemoryAuthAccess();
+    public static void main(String[] args) throws SQLException, DataAccessException {
+        UserAccess userAccess = new MySqlUserAccess();
+        AuthAccess authAccess = new MySqlAuthAccess();
         GameAccess gameAccess = new MemoryGameAccess();
         var userService = new UserService(userAccess, authAccess);
         var authService = new AuthService(authAccess);
