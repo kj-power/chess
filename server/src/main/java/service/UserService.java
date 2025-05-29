@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import dataaccess.UserAccess;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.LoginRequest;
 import requests.LogoutRequest;
 import requests.RegisterRequest;
@@ -31,7 +32,8 @@ public class UserService {
         }
         UserData user = userAccess.getUser(registerRequest.username());
         if (user == null) {
-            userAccess.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            String hashedPassword = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
+            userAccess.createUser(registerRequest.username(), hashedPassword, registerRequest.email());
             String token = authAccess.createAuth(registerRequest.username());
             RegisterResult result = new RegisterResult(registerRequest.username(), token);
             return result;
@@ -52,7 +54,8 @@ public class UserService {
         if (user == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-        if (!Objects.equals(user.password(), loginRequest.password())) {
+        String hashedPassword = user.password();
+        if (BCrypt.checkpw(loginRequest.password(), hashedPassword)) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         String token = authAccess.createAuth(loginRequest.username());
