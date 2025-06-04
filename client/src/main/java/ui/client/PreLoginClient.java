@@ -4,7 +4,6 @@ import client.websocket.NotificationHandler;
 import requests.LoginRequest;
 import requests.RegisterRequest;
 import server.ServerFacade;
-import ui.client.websocket.WebSocketFacade;
 import ui.client.websocket.State;
 
 import java.util.Arrays;
