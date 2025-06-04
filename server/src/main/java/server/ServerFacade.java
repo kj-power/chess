@@ -37,9 +37,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, req, LoginResult.class);
     }
 
-    public ListResult list(ListRequest req) throws exception.ResponseException {
+    public ListResult list() throws exception.ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, req, null);
+        return this.makeRequest("GET", path, null, null);
     }
 
     public CreateResult create(CreateRequest req) throws exception.ResponseException {
@@ -50,6 +50,11 @@ public class ServerFacade {
     public Object join(JoinRequest req) throws exception.ResponseException {
         var path = "/game";
         return this.makeRequest("PUT", path, req, null);
+    }
+
+    public Object logout() throws exception.ResponseException {
+        var path = "/session";
+        return this.makeRequest("DELETE", path, null, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws exception.ResponseException {

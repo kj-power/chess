@@ -67,7 +67,7 @@ public class PreLoginClient {
 
     public String register(String... params) throws exception.ResponseException {
         if (params.length < 3) {
-            throw new exception.ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
+            throw new exception.ResponseException(400, "Expected: <USERNAME><PASSWORD><EMAIL>");
         }
 
         var request = new RegisterRequest(params[0], params[1], params[2]);
@@ -78,7 +78,7 @@ public class PreLoginClient {
             this.username = params[0];
             return String.format("Registered as %s.", this.username);
         } else {
-            throw new exception.ResponseException(401, "Login failed");
+            throw new exception.ResponseException(401, "Registration failed");
         }
     }
 

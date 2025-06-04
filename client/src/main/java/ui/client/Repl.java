@@ -15,7 +15,7 @@ public class Repl implements NotificationHandler {
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to Chess. Type help to get started");
+        System.out.println(WHITE_KING + "Welcome to Chess. Type help to get started");
         System.out.print(preClient.help());
 
         Scanner scanner = new Scanner(System.in);
