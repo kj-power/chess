@@ -4,6 +4,7 @@ import chess.ChessGame;
 import model.GameData;
 import requests.CreateRequest;
 import requests.JoinRequest;
+import requests.LogoutRequest;
 import results.ListResult;
 import server.ServerFacade;
 import ui.client.websocket.State;
@@ -11,14 +12,14 @@ import ui.client.websocket.State;
 import java.util.Arrays;
 
 public class PostLoginClient {
-    private String name = null;
     private final ServerFacade server;
+    private String name = null;
     private final String serverUrl;
     private final client.websocket.NotificationHandler notificationHandler;
     private State state = State.SIGNEDIN;
 
-    public PostLoginClient(String serverUrl, client.websocket.NotificationHandler notificationHandler) {
-        server = new ServerFacade(serverUrl);
+    public PostLoginClient(ServerFacade server, String serverUrl, client.websocket.NotificationHandler notificationHandler) {
+        this.server = server;
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
     }
@@ -125,10 +126,12 @@ public class PostLoginClient {
         }
     }
 
-    public String logout(String... params) throws exception.ResponseException {
-        if (server.getAuthToken() == null) {
+    public String logout() throws exception.ResponseException {
+        String token = server.getAuthToken();
+        if (token == null) {
             return "You must be logged in to perform this action.";
         }
+        LogoutRequest req = new LogoutRequest(token);
         server.logout();
         this.state = State.SIGNEDOUT;
         server.setAuthToken(null);

@@ -16,8 +16,8 @@ public class PreLoginClient {
     private final NotificationHandler notificationHandler;
     private State state = State.SIGNEDOUT;
 
-    public PreLoginClient(String serverUrl, NotificationHandler notificationHandler) {
-        server = new ServerFacade(serverUrl);
+    public PreLoginClient(ServerFacade server, String serverUrl, NotificationHandler notificationHandler) {
+        this.server = server;
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
     }

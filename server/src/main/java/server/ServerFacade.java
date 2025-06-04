@@ -61,9 +61,9 @@ public class ServerFacade {
         return this.makeRequest("PUT", path, req, null);
     }
 
-    public Object logout() throws exception.ResponseException {
+    public void logout() throws exception.ResponseException {
         var path = "/session";
-        return this.makeRequest("DELETE", path, null, null);
+        this.makeRequest("DELETE", path, null, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws exception.ResponseException {
@@ -72,6 +72,10 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            if (authToken != null) {
+                http.setRequestProperty("Authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();

@@ -1,6 +1,7 @@
 package ui.client;
 
 import client.websocket.NotificationHandler;
+import server.ServerFacade;
 import webSocketMessages.Notification;
 
 import java.util.Scanner;
@@ -12,8 +13,9 @@ public class Repl implements NotificationHandler {
     private final PostLoginClient postClient;
 
     public Repl(String serverUrl) {
-        preClient = new PreLoginClient(serverUrl, this);
-        postClient = new PostLoginClient(serverUrl, this);
+        ServerFacade sharedServer = new ServerFacade(serverUrl);
+        preClient = new PreLoginClient(sharedServer, serverUrl, this);
+        postClient = new PostLoginClient(sharedServer, serverUrl, this);
     }
 
     String whichClient = "pre";
