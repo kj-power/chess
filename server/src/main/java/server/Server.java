@@ -172,7 +172,7 @@ public class Server {
 
     }
 
-    private Object clear(Request req, Response res) {
+    public Object clear(Request req, Response res) {
         try {
             userService.delete();
             gameService.delete();
