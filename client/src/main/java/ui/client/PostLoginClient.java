@@ -47,25 +47,25 @@ public class PostLoginClient {
     }
 
     public String observe(String... params) throws exception.ResponseException {
-        if (params.length < 1) {
-            throw new exception.ResponseException(400, "Expected: <ID>");
-        }
+//        if (params.length < 1) {
+//            throw new exception.ResponseException(400, "Expected: <ID>");
+//        }
+//
+//        int id = Integer.parseInt(params[0]);
+//        var listResult = server.list();
+//        List<GameData> games = new ArrayList<>(listResult.games());
+//
+//        if (id < 1 || id > games.size()) {
+//            throw new exception.ResponseException(404, "Game index out of range");
+//        }
+//        System.out.println(games);
+//        GameData game = games.get(id - 1);
+//        int gameID = game.gameID();
+//
+//        var request = new JoinRequest(null, gameID);
+//        server.join(request);
 
-        int id = Integer.parseInt(params[0]);
-        var listResult = server.list();
-        List<GameData> games = new ArrayList<>(listResult.games());
-
-        if (id < 1 || id > games.size()) {
-            throw new exception.ResponseException(404, "Game index out of range");
-        }
-
-        GameData game = games.get(id - 1);
-        int gameID = game.gameID();
-
-        var request = new JoinRequest(null, gameID);
-        server.join(request);
-
-        BoardMaker.main(ChessGame.TeamColor.WHITE, game.game());
+        BoardMaker.main(ChessGame.TeamColor.WHITE, new ChessGame());
         this.state = State.INGAME;
         return String.format("Joined game!");
     }
@@ -78,8 +78,8 @@ public class PostLoginClient {
         int id = Integer.parseInt(params[0]);
         ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
 
-        var request = new JoinRequest(color, id);
-        server.join(request);
+//        var request = new JoinRequest(color, id);
+//        server.join(request);
 
         this.state = State.INGAME;
         BoardMaker.main(color, new ChessGame());

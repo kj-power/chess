@@ -40,6 +40,10 @@ public class MemoryGameAccess implements GameAccess {
         if (game == null) {
             throw new BadRequestException("Error:bad request");
         }
+        if (color == null) {
+            System.out.println("Observer " + username + " joined game " + gameID);
+            return;
+        }
         GameData newGame = null;
         if (color == WHITE) {
             if (game.whiteUsername() != null) {
@@ -54,9 +58,7 @@ public class MemoryGameAccess implements GameAccess {
             }
             newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
         }
-        else {
-            throw new BadRequestException("Error: bad request");
-        }
+
         DATA_HASH_MAP.put(gameID, newGame);
     }
 

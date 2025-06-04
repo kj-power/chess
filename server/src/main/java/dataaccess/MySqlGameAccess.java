@@ -88,6 +88,11 @@ public class MySqlGameAccess implements GameAccess{
             throw new BadRequestException("Error:bad request");
         }
 
+        if (color == null) {
+            System.out.println("Observer " + username + " joined game " + gameID);
+            return;
+        }
+
         String updateField = null;
 
         if (color == ChessGame.TeamColor.WHITE) {
@@ -100,8 +105,6 @@ public class MySqlGameAccess implements GameAccess{
                 throw new TakenException("Error: already taken");
             }
             updateField = "blackUsername";
-        } else {
-            throw new BadRequestException("Error: bad request");
         }
 
         try (var conn = DatabaseManager.getConnection()) {

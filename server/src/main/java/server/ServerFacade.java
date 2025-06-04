@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import requests.*;
 import results.CreateResult;
 import results.ListResult;
@@ -58,6 +59,7 @@ public class ServerFacade {
 
     public void join(JoinRequest req) throws exception.ResponseException {
         var path = "/game";
+        System.out.println(req);
         this.makeRequest("PUT", path, req, null);
     }
 
@@ -91,7 +93,9 @@ public class ServerFacade {
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
-            String reqData = new Gson().toJson(request);
+            Gson gson = new GsonBuilder().serializeNulls().create();
+            String reqData = gson.toJson(request);
+            System.out.println("Sending request: " + gson.toJson(request));
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());
             }
