@@ -17,9 +17,18 @@ import java.net.URL;
 
 public class ServerFacade {
     private final String serverUrl;
+    private String authToken;
 
     public ServerFacade(String url) {
         serverUrl = url;
+    }
+
+    public void setAuthToken(String token) {
+        this.authToken = token;
+    }
+
+    public String getAuthToken() {
+        return authToken;
     }
 
     public Object clear() throws exception.ResponseException {

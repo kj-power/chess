@@ -9,10 +9,14 @@ import static ui.EscapeSequences.*;
 
 public class Repl implements NotificationHandler {
     private final PreLoginClient preClient;
+    private final PostLoginClient postClient;
 
     public Repl(String serverUrl) {
         preClient = new PreLoginClient(serverUrl, this);
+        postClient = new PostLoginClient(serverUrl, this);
     }
+
+    String whichClient = "pre";
 
     public void run() {
         System.out.println(WHITE_KING + "Welcome to Chess. Type help to get started");
@@ -25,11 +29,18 @@ public class Repl implements NotificationHandler {
             String line = scanner.nextLine();
 
             try {
-                result = preClient.eval(line);
-                if (result.length() >= 5 && result.substring(0, 5).equals("Login")) {
-
+                if (whichClient.equals("pre")) {
+                    result = preClient.eval(line);
+                    System.out.print(SET_TEXT_COLOR_BLUE + result);
+                    if (result.startsWith("Logged in as") || result.startsWith("Registered as")) {
+                        whichClient = "post";
+                        System.out.print("\n You're now signed in. Type 'help' for post-login commands.");
+                    }
+                } else {
+                    result = postClient.eval(line);
+                    System.out.print(SET_TEXT_COLOR_BLUE + result);
                 }
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
+
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);

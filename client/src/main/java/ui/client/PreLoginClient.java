@@ -59,6 +59,7 @@ public class PreLoginClient {
         if (result != null && result.authToken() != null) {
             this.state = State.SIGNEDIN;
             this.username = params[0];
+            server.setAuthToken(result.authToken());
             return String.format("Logged in as %s.", this.username);
         } else {
             throw new exception.ResponseException(401, "Login failed");
@@ -76,6 +77,7 @@ public class PreLoginClient {
         if (result != null && result.authToken() != null) {
             this.state = State.SIGNEDIN;
             this.username = params[0];
+            server.setAuthToken(result.authToken());
             return String.format("Registered as %s.", this.username);
         } else {
             throw new exception.ResponseException(401, "Registration failed");

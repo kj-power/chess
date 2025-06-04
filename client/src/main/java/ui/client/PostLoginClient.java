@@ -15,16 +15,10 @@ public class PostLoginClient {
     private final ServerFacade server;
     private final String serverUrl;
     private final client.websocket.NotificationHandler notificationHandler;
-    private State state = State.SIGNEDOUT;
+    private State state = State.SIGNEDIN;
 
     public PostLoginClient(String serverUrl, client.websocket.NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
-    }
-
-    public PostLoginClient(ServerFacade server, String serverUrl, client.websocket.NotificationHandler notificationHandler) {
-        this.server = server;
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
     }
@@ -67,7 +61,7 @@ public class PostLoginClient {
             System.out.println("Error joining game");
             return null;
         }
-
+        this.state = State.INGAME;
         return String.format("Joined game!");
     }
 
@@ -84,7 +78,7 @@ public class PostLoginClient {
             System.out.println("Error joining game");
             return null;
         }
-
+        this.state = State.INGAME;
         return String.format("Joined game!");
     }
 
@@ -110,6 +104,7 @@ public class PostLoginClient {
                 string.append("____");
             }
         }
+        this.state = State.INGAME;
         return string.toString();
     }
 
@@ -122,7 +117,7 @@ public class PostLoginClient {
         var result = server.create(request);
 
         if (result != null) {
-            this.state = State.SIGNEDIN;
+            this.state = State.INGAME;
             this.name = params[0];
             return String.format("Created game %s.", this.name);
         } else {
@@ -131,7 +126,12 @@ public class PostLoginClient {
     }
 
     public String logout(String... params) throws exception.ResponseException {
+        if (server.getAuthToken() == null) {
+            return "You must be logged in to perform this action.";
+        }
         server.logout();
+        this.state = State.SIGNEDOUT;
+        server.setAuthToken(null);
         return String.format("Logged out");
     }
 
