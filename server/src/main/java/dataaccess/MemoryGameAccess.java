@@ -58,6 +58,9 @@ public class MemoryGameAccess implements GameAccess {
             }
             newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
         }
+        else {
+            throw new BadRequestException("Error:bad request");
+        }
 
         DATA_HASH_MAP.put(gameID, newGame);
     }
