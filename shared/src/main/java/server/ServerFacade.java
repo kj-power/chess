@@ -2,7 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import requests.*;
+import requests.CreateRequest;
+import requests.JoinRequest;
+import requests.LoginRequest;
+import requests.RegisterRequest;
 import results.CreateResult;
 import results.ListResult;
 import results.LoginResult;
@@ -47,7 +50,7 @@ public class ServerFacade {
         return this.makeRequest("POST", path, req, LoginResult.class);
     }
 
-    public ListResult list() throws exception.ResponseException {
+    public results.ListResult list() throws exception.ResponseException {
         var path = "/game";
         return this.makeRequest("GET", path, null, ListResult.class);
     }
