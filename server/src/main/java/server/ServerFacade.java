@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import requests.*;
 import results.CreateResult;
+import results.ListResult;
 import results.LoginResult;
 import results.RegisterResult;
 
@@ -36,7 +37,7 @@ public class ServerFacade {
         return this.makeRequest("POST", path, req, LoginResult.class);
     }
 
-    public Object list(ListRequest req) throws exception.ResponseException {
+    public ListResult list(ListRequest req) throws exception.ResponseException {
         var path = "/game";
         return this.makeRequest("GET", path, req, null);
     }
@@ -68,7 +69,6 @@ public class ServerFacade {
             throw new exception.ResponseException(500, ex.getMessage());
         }
     }
-
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
