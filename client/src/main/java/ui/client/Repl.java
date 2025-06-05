@@ -1,6 +1,5 @@
 package ui.client;
 
-import client.websocket.NotificationHandler;
 import server.ServerFacade;
 
 import java.util.Scanner;

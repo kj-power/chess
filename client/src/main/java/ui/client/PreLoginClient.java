@@ -1,6 +1,5 @@
 package ui.client;
 
-import client.websocket.NotificationHandler;
 import requests.LoginRequest;
 import requests.RegisterRequest;
 import server.ServerFacade;
