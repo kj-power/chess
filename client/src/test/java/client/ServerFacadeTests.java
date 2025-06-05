@@ -148,7 +148,7 @@ public class ServerFacadeTests {
         CreateRequest request = new CreateRequest("game1");
         CreateResult result = facade.create(request);
 
-        JoinRequest req = new JoinRequest(ChessGame.TeamColor.WHITE, result.gameID());
+        JoinRequest req = new JoinRequest(ChessGame.TeamColor.WHITE, 1);
         Assertions.assertThrows(exception.ResponseException.class, () -> {
             facade.join(req);
         });
