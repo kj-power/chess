@@ -92,6 +92,7 @@ public class MySqlGameAccess implements GameAccess{
             throw new BadRequestException("Error: invalid color");
         }
 
+
         String updateField = null;
 
 
