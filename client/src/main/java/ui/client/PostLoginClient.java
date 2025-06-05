@@ -1,6 +1,7 @@
 package ui.client;
 
 import chess.ChessGame;
+import exception.ResponseException;
 import model.GameData;
 import requests.CreateRequest;
 import requests.JoinRequest;
@@ -45,8 +46,21 @@ public class PostLoginClient {
     }
 
     public String observe(String... params) throws exception.ResponseException {
-
-        BoardMaker.main(ChessGame.TeamColor.WHITE, new ChessGame());
+        int id = 0;
+        try {
+            id = Integer.parseInt(params[0]);
+        }
+        catch (NumberFormatException e) {
+            throw new ResponseException(400, "must be a number");
+        }
+        var result = server.list();
+        List<GameData> games = new ArrayList<>(result.games());
+        if (id <= games.size()) {
+            BoardMaker.main(ChessGame.TeamColor.WHITE, new ChessGame());
+        }
+        else {
+            throw new ResponseException(400, "Not in list");
+        }
         this.state = State.INGAME;
         return String.format("Joined game!");
     }
@@ -57,7 +71,32 @@ public class PostLoginClient {
         }
 
         int id = Integer.parseInt(params[0]);
-        ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
+        try {
+            id = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            throw new exception.ResponseException(400, "Game ID must be a number.");
+        }
+        ChessGame.TeamColor color = null;
+        try {
+             color = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new exception.ResponseException(400, "Invalid color. Expected WHITE or BLACK.");
+        }
+        var result = server.list();
+        List<GameData> games = new ArrayList<>(result.games());
+
+        if (id < 1 || id > games.size()) {
+            throw new exception.ResponseException(404, "Game index out of range");
+        }
+
+        GameData game = games.get(id - 1);
+        int gameID = game.gameID();
+
+        JoinRequest req = new JoinRequest(color, gameID);
+        boolean success = server.join(req);
+        if (!success) {
+            System.out.println("Join failed. Please check the game ID and color, or try again.");
+        }
 
         this.state = State.INGAME;
         BoardMaker.main(color, new ChessGame());
@@ -72,8 +111,10 @@ public class PostLoginClient {
         for (GameData game : result.games()) {
             string.append(numGame++).append(": ");
             string.append(game.gameName()).append(" -- ");
+            string.append("WHITE: ");
             string.append(game.whiteUsername() != null ? game.whiteUsername() : "___");
             string.append(" vs ");
+            string.append("BLACK: ");
             string.append(game.blackUsername() != null ? game.blackUsername() : "___");
             string.append("\n");
         }

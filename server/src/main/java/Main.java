@@ -18,7 +18,6 @@ public class Main {
         var userService = new UserService(userAccess, authAccess);
         var authService = new AuthService(authAccess);
         var gameService = new GameService(gameAccess, authAccess);
-
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Server: " + piece);
         DatabaseManager.createDatabase();

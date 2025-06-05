@@ -37,8 +37,8 @@ public class PreLoginClient {
 
     public String help() {
         return """
-                - register<USERNAME><PASSWORD><EMAIL> - to create an account
-                - login<USERNAME><PASSWORD> - to play chess
+                - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                - login <USERNAME> <PASSWORD> - to play chess
                 - quit
                 - help
                 """;
@@ -64,7 +64,7 @@ public class PreLoginClient {
 
     public String register(String... params) throws exception.ResponseException {
         if (params.length < 3) {
-            throw new exception.ResponseException(400, "Expected: <USERNAME><PASSWORD><EMAIL>");
+            throw new exception.ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
         }
 
         var request = new RegisterRequest(params[0], params[1], params[2]);

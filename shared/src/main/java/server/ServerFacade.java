@@ -40,34 +40,70 @@ public class ServerFacade {
         return this.makeRequest("DELETE", path, null, null);
     }
 
-    public RegisterResult register(RegisterRequest req) throws exception.ResponseException {
+    public RegisterResult register(RegisterRequest req) {
         var path = "/user";
-        return this.makeRequest("POST", path, req, RegisterResult.class);
+        try {
+            return this.makeRequest("POST", path, req, RegisterResult.class);
+        }
+        catch (exception.ResponseException e) {
+            System.out.println("Invalid entries");
+            return null;
+        }
     }
 
-    public LoginResult login(LoginRequest req) throws exception.ResponseException {
+    public LoginResult login(LoginRequest req) {
         var path = "/session";
-        return this.makeRequest("POST", path, req, LoginResult.class);
+        try {
+            return this.makeRequest("POST", path, req, LoginResult.class);
+        }
+        catch (exception.ResponseException e) {
+            System.out.println("Invalid entries");
+            return null;
+        }
     }
 
     public results.ListResult list() throws exception.ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, null, ListResult.class);
+        try {
+            return this.makeRequest("GET", path, null, ListResult.class);
+        }
+        catch (exception.ResponseException e) {
+            System.out.println("Failed to list games");
+            return null;
+        }
     }
 
-    public CreateResult create(CreateRequest req) throws exception.ResponseException {
+    public CreateResult create(CreateRequest req) {
         var path = "/game";
-        return this.makeRequest("POST", path, req, CreateResult.class);
+        try {
+            return this.makeRequest("POST", path, req, CreateResult.class);
+        }
+        catch (exception.ResponseException e) {
+            System.out.println("Invalid entries");
+            return null;
+        }
     }
 
-    public void join(JoinRequest req) throws exception.ResponseException {
+    public boolean join(JoinRequest req) {
         var path = "/game";
-        this.makeRequest("PUT", path, req, null);
+        try {
+            this.makeRequest("PUT", path, req, null);
+            System.out.println("Joined game successfully.");
+            return true;
+        } catch (exception.ResponseException e) {
+            System.out.println("Failed to join game");
+            return false;
+        }
     }
 
-    public void logout() throws exception.ResponseException {
+    public void logout() {
         var path = "/session";
-        this.makeRequest("DELETE", path, null, null);
+        try {
+            this.makeRequest("DELETE", path, null, null);
+        }
+        catch (exception.ResponseException e) {
+            System.out.println("Invalid entries");
+        }
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws exception.ResponseException {
