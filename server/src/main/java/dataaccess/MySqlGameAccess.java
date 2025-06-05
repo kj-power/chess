@@ -89,11 +89,11 @@ public class MySqlGameAccess implements GameAccess{
         }
 
         if (color == null) {
-            System.out.println("Observer " + username + " joined game " + gameID);
-            return;
+            throw new BadRequestException("Error: invalid color");
         }
 
         String updateField = null;
+
 
         if (color == ChessGame.TeamColor.WHITE) {
             if (game.whiteUsername() != null) {
@@ -105,6 +105,9 @@ public class MySqlGameAccess implements GameAccess{
                 throw new TakenException("Error: already taken");
             }
             updateField = "blackUsername";
+        }
+        else {
+            throw new BadRequestException("Error: invalid color");
         }
 
         try (var conn = DatabaseManager.getConnection()) {

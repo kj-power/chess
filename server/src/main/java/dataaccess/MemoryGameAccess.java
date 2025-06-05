@@ -38,28 +38,32 @@ public class MemoryGameAccess implements GameAccess {
     public void joinGame(ChessGame.TeamColor color, int gameID, String username) {
         GameData game = getGame(gameID);
         if (game == null) {
-            throw new BadRequestException("Error:bad request");
+            throw new BadRequestException("Error: bad request");
         }
+
         if (color == null) {
-            System.out.println("Observer " + username + " joined game " + gameID);
-            return;
+            throw new BadRequestException("Error: color is required");
         }
-        GameData newGame = null;
-        if (color == WHITE) {
-            if (game.whiteUsername() != null) {
-                throw new TakenException("Error: already taken");
-            }
-            newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
-        }
-        else if (color == BLACK) {
-            System.out.println("Test: created gameID = " + newGame);
-            if (game.blackUsername() != null) {
-                throw new TakenException("Error: already taken");
-            }
-            newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
-        }
-        else {
-            throw new BadRequestException("Error:bad request");
+
+        GameData newGame;
+
+        switch (color) {
+            case WHITE:
+                if (game.whiteUsername() != null) {
+                    throw new TakenException("Error: already taken");
+                }
+                newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
+                break;
+
+            case BLACK:
+                if (game.blackUsername() != null) {
+                    throw new TakenException("Error: already taken");
+                }
+                newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
+                break;
+
+            default:
+                throw new BadRequestException("Error: invalid color");
         }
 
         DATA_HASH_MAP.put(gameID, newGame);
