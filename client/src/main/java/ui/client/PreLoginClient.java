@@ -12,13 +12,11 @@ public class PreLoginClient {
     private String username = null;
     private final ServerFacade server;
     private final String serverUrl;
-    private final NotificationHandler notificationHandler;
     private State state = State.SIGNEDOUT;
 
-    public PreLoginClient(ServerFacade server, String serverUrl, NotificationHandler notificationHandler) {
+    public PreLoginClient(ServerFacade server, String serverUrl) {
         this.server = server;
         this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {

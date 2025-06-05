@@ -124,6 +124,7 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
     @DisplayName("Join - Positive")
     public void testJoinPositive() throws DataAccessException, exception.ResponseException {
         RegisterRequest reg = new RegisterRequest("user1", "pass", "email@email.com");
@@ -137,6 +138,7 @@ public class ServerFacadeTests {
         facade.join(req);
     }
 
+    @Test
     @DisplayName("Join - Negative")
     public void testJoinNegative() throws DataAccessException, exception.ResponseException {
         RegisterRequest reg = new RegisterRequest("user1", "pass", "email@email.com");
