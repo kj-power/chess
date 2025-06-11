@@ -1,19 +1,21 @@
 package ui.client;
 
 import server.ServerFacade;
+import ui.client.websocket.NotificationHandler;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private final PreLoginClient preClient;
     private final PostLoginClient postClient;
 
     public Repl(String serverUrl) {
         ServerFacade sharedServer = new ServerFacade(serverUrl);
-        preClient = new PreLoginClient(sharedServer, serverUrl);
-        postClient = new PostLoginClient(sharedServer, serverUrl);
+        preClient = new PreLoginClient(sharedServer, serverUrl, this);
+        postClient = new PostLoginClient(sharedServer, serverUrl, this);
     }
 
     String whichClient = "pre";
@@ -58,4 +60,9 @@ public class Repl {
         System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
+    @Override
+    public void notify(ServerMessage serverMessage) {
+        System.out.println(SET_TEXT_COLOR_RED + serverMessage.getMessage());
+        printPrompt();
+    }
 }

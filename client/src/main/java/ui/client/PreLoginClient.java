@@ -3,7 +3,9 @@ package ui.client;
 import requests.LoginRequest;
 import requests.RegisterRequest;
 import server.ServerFacade;
+import ui.client.websocket.NotificationHandler;
 import ui.client.websocket.State;
+import ui.client.websocket.WebSocketFacade;
 
 import java.util.Arrays;
 
@@ -12,10 +14,13 @@ public class PreLoginClient {
     private final ServerFacade server;
     private final String serverUrl;
     private State state = State.SIGNEDOUT;
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
 
-    public PreLoginClient(ServerFacade server, String serverUrl) {
+    public PreLoginClient(ServerFacade server, String serverUrl, NotificationHandler notificationHandler) {
         this.server = server;
         this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {

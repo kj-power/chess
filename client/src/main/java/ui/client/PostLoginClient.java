@@ -8,7 +8,9 @@ import requests.JoinRequest;
 import requests.LogoutRequest;
 import results.ListResult;
 import server.ServerFacade;
+import ui.client.websocket.NotificationHandler;
 import ui.client.websocket.State;
+import ui.client.websocket.WebSocketFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,10 +21,13 @@ public class PostLoginClient {
     private String name = null;
     private final String serverUrl;
     private State state = State.SIGNEDIN;
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
 
-    public PostLoginClient(ServerFacade server, String serverUrl) {
+    public PostLoginClient(ServerFacade server, String serverUrl, NotificationHandler notificationHandler) {
         this.server = server;
         this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -66,6 +71,8 @@ public class PostLoginClient {
     }
 
     public String play(String... params) throws exception.ResponseException {
+        String token = server.getAuthToken();
+
         if (params.length < 1) {
             throw new exception.ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
         }
@@ -93,6 +100,8 @@ public class PostLoginClient {
         int gameID = game.gameID();
 
         JoinRequest req = new JoinRequest(color, gameID);
+        ws = new WebSocketFacade(serverUrl, notificationHandler);
+        ws.connect(token, gameID, color);
         boolean success = server.join(req);
         if (!success) {
             System.out.println("Join failed. Please check the game ID and color, or try again.");

@@ -3,11 +3,13 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.AuthData;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import requests.*;
 import results.CreateResult;
 import results.ListResult;
 import results.LoginResult;
 import results.RegisterResult;
+import server.websocket.WebSocketHandler;
 import service.*;
 import spark.*;
 
@@ -41,7 +43,7 @@ public class Server {
     public int run(int desiredPort) {
 
         Spark.port(desiredPort);
-
+        Spark.webSocket("/ws", WebSocketHandler.class);
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
