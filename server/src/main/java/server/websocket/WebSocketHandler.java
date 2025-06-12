@@ -83,13 +83,16 @@ public class WebSocketHandler {
             MySqlAuthAccess authAccess = new MySqlAuthAccess();
             AuthData data = authAccess.getAuth(authToken);
             if (data == null) {
+                System.out.println("YUHHHH");
                 var errorMessage = new ErrorMessage("Error: bad auth token");
                 connections.oneBroadcast(authToken, errorMessage);
                 return null;
             }
             if (data.username() == null) {
+                System.out.println("it's null!!!!");
                 var errorMessage = new ErrorMessage("Error: bad auth token");
                 connections.oneBroadcast(authToken, errorMessage);
+                return null;
             }
             return data.username();
         } catch (DataAccessException | SQLException | IOException e) {
@@ -182,8 +185,15 @@ public class WebSocketHandler {
             return;
         }
 
+        connections.add(authToken, gameID, session);
+
         ChessMove chessMove = command.getMove();
         String username = getUsername(authToken);
+
+        if (username == null) {
+            return;
+        }
+
         ChessGame chessGame = game.game();
         ChessGame.TeamColor color = getColor(game, username);
 
@@ -200,16 +210,23 @@ public class WebSocketHandler {
         }
 
         try {
-            chessGame.setTeamTurn(color);
+            if (chessGame.getTeamTurn() != color) {
+                var errorMessage = new ErrorMessage("Error: it's not your turn");
+                connections.oneBroadcast(authToken, errorMessage);
+                return;
+            }
+
             chessGame.makeMove(chessMove);
+
             MySqlGameAccess gameAccess = new MySqlGameAccess();
             gameAccess.updateGame(game);
 
-            if (color == ChessGame.TeamColor.WHITE) {
+            if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
                 chessGame.setTeamTurn(ChessGame.TeamColor.BLACK);
             } else {
                 chessGame.setTeamTurn(ChessGame.TeamColor.WHITE);
             }
+
         } catch (InvalidMoveException e) {
             var errorMessage = new ErrorMessage("Error: failed to make move");
             connections.oneBroadcast(authToken, errorMessage);
