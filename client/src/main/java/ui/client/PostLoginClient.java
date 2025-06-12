@@ -67,7 +67,7 @@ public class PostLoginClient {
             throw new ResponseException(400, "Not in list");
         }
         this.state = State.INGAME;
-        return String.format("Joined game!");
+        return String.format("Joined game %s!", id);
     }
 
     public String play(String... params) throws exception.ResponseException {
@@ -111,7 +111,12 @@ public class PostLoginClient {
 
         this.state = State.INGAME;
         BoardMaker.main(color, new ChessGame());
-        return String.format("Joined game!");
+        if (color == ChessGame.TeamColor.WHITE) {
+            return String.format("Joined game &s as white", id);
+        }
+       else {
+           return String.format("Joined game %s as black", id);
+       }
     }
 
     public String list() throws exception.ResponseException {

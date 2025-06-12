@@ -3,7 +3,10 @@ package server.websocket;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.protobuf.Service;
 import com.mysql.cj.callback.MysqlCallback;
 import dataaccess.DataAccessException;
@@ -45,20 +48,22 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         try {
-            UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-            String username = getUsername(command.getAuthToken());
+            JsonObject json = JsonParser.parseString(message).getAsJsonObject();
+            UserGameCommand.CommandType type = UserGameCommand.CommandType.valueOf(json.get("commandType").getAsString());
 
-            MakeMoveCommand moveCommand = null;
-
-            if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
-                moveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
-            }
-
-            switch (command.getCommandType()) {
-                case CONNECT -> connect(command, session);
-                case MAKE_MOVE -> makeMove(moveCommand, session);
-                //case LEAVE ->
-                case RESIGN -> resign(command, session);
+            switch (type) {
+                case MAKE_MOVE:
+                    MakeMoveCommand moveCommand = new Gson().fromJson(json, MakeMoveCommand.class);
+                    makeMove(moveCommand, session);
+                    break;
+                case CONNECT:
+                    UserGameCommand connectCommand = new Gson().fromJson(json, UserGameCommand.class);
+                    connect(connectCommand, session);
+                    break;
+                case RESIGN:
+                    UserGameCommand resignCommand = new Gson().fromJson(json, UserGameCommand.class);
+                    resign(resignCommand, session);
+                    break;
             }
         } catch (UnauthorizedException ex){
            // connections.broadcast("", new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage()));
@@ -168,16 +173,40 @@ public class WebSocketHandler {
         connections.oneBroadcast(authToken, notification);
     }
 
-    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException {
+    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException, IOException {
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
+
+        GameData game = getGameData(gameID, authToken);
+        if (game == null) {
+            return;
+        }
+
         ChessMove chessMove = command.getMove();
         String username = getUsername(authToken);
+        ChessGame chessGame = game.game();
+        ChessGame.TeamColor color = getColor(game, username);
+
+        if (chessMove == null) {
+            var errorMessage = new ErrorMessage("Error: enter valid positions to move");
+            connections.oneBroadcast(authToken, errorMessage);
+            return;
+        }
 
         try {
-            var message = String.format("%s moves to %s", username, chessMove.getEndPosition());
+            chessGame.makeMove(chessMove);
+        } catch (InvalidMoveException e) {
+            var errorMessage = new ErrorMessage("Error: failed to make move");
+            connections.oneBroadcast(authToken, errorMessage);
+            throw new RuntimeException(e);
+        }
+
+        try {
+            var message = String.format("%s moved to %s", username, chessMove.getEndPosition());
+            var loadGameMessage = new LoadGameMessage(chessGame, color);
             var notification = new NotificationMessage(message);
-            connections.broadcast("", notification);
+            connections.broadcast("", loadGameMessage);
+            connections.broadcast(authToken, notification);
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
