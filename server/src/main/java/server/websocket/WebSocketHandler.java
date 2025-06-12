@@ -150,15 +150,14 @@ public class WebSocketHandler {
         }
 
         ChessGame.TeamColor color = getColor(game, username);
-        if (color == null) {
-            return;
-        }
 
         GameData newGame;
         if (color == ChessGame.TeamColor.WHITE) {
             newGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
-        } else {
+        } else if (color == ChessGame.TeamColor.BLACK){
             newGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+        } else {
+            newGame = game;
         }
 
         MySqlGameAccess gameAccess = new MySqlGameAccess();
@@ -167,7 +166,6 @@ public class WebSocketHandler {
         NotificationMessage notification = new NotificationMessage(String.format("%s has left the game", username));
         connections.broadcast(authToken, notification);
         connections.remove(authToken);
-        session.close();
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException {
