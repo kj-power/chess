@@ -97,7 +97,7 @@ public class Repl implements NotificationHandler {
     }
 
     @Override
-    public void notify(ServerMessage serverMessage) {
+    public void notify(ServerMessage serverMessage) throws Exception {
         if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             LoadGameMessage loadMsg = (LoadGameMessage) serverMessage;
             System.out.println(SET_TEXT_COLOR_MAGENTA + "Game Loaded!");
