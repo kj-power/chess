@@ -8,7 +8,6 @@ import model.GameData;
 import requests.CreateRequest;
 import requests.LogoutRequest;
 import server.ServerFacade;
-import service.BadRequestException;
 import ui.client.websocket.NotificationHandler;
 import ui.client.websocket.State;
 import ui.client.websocket.WebSocketFacade;

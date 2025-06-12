@@ -4,7 +4,6 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import service.BadRequestException;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -31,7 +30,7 @@ public class BoardMaker {
 
     private static Random rand = new Random();
 
-    public static void main(ChessGame.TeamColor color, ChessGame game, ChessPosition position) {
+    public static void main(ChessGame.TeamColor color, ChessGame game, ChessPosition position) throws Exception {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 
@@ -42,7 +41,7 @@ public class BoardMaker {
         Set<ChessPosition> highlights = new HashSet<>();
         if (position != null) {
             if (game.validMoves(position) == null) {
-                throw new BadRequestException("Error: no valid moves for selected position");
+                throw new Exception("Error: no valid moves for selected position");
             }
             for (ChessMove move : game.validMoves(position)) {
                 highlights.add(move.getEndPosition());
