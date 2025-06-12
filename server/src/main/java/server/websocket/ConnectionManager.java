@@ -27,10 +27,10 @@ public class ConnectionManager {
 
     public void broadcast(String excludeToken, ServerMessage serverMessage) throws IOException {
         var removeList = new ArrayList<Connection>();
+        Gson gson = new Gson();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (!c.authToken.equals(excludeToken)) {
-                    Gson gson = new Gson();
                     c.send(gson.toJson(serverMessage));
                 }
             } else {
@@ -44,22 +44,14 @@ public class ConnectionManager {
         }
     }
 
-    public void oneBroadcast(String excludeToken, ServerMessage serverMessage) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (c.authToken.equals(excludeToken)) {
-                    Gson gson = new Gson();
-                    c.send(gson.toJson(serverMessage));
-                }
-            } else {
-                removeList.add(c);
-            }
-        }
-
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.authToken);
+    public void oneBroadcast(String authToken, ServerMessage serverMessage) throws IOException {
+        System.out.println("Connections contains token? " + connections.containsKey(authToken));
+        Gson gson = new Gson();
+        Connection c = connections.get(authToken);
+        if (c != null && c.session.isOpen()) {
+            c.send(gson.toJson(serverMessage));
+        } else {
+            connections.remove(authToken);
         }
     }
 }
