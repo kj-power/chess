@@ -38,10 +38,20 @@ public class ChessGame {
         this.teamTurn = TeamColor.WHITE;
         this.gameBoard = new ChessBoard();
         gameBoard.resetBoard();
+        this.gameOver = false;
     }
 
     private TeamColor teamTurn;
     private ChessBoard gameBoard;
+    private boolean gameOver;
+
+    public void setGameOver(boolean over) {
+        this.gameOver = over;
+    }
+
+    public boolean getGameOver() {
+        return this.gameOver;
+    }
 
     /**
      * @return Which team's turn it is

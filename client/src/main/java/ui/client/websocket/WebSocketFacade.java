@@ -77,7 +77,7 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void move(String authToken, int gameID, ChessGame.TeamColor color) throws ResponseException {
+    public void move(String authToken, int gameID) throws ResponseException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
@@ -86,11 +86,10 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void resign(String authToken, int gameID, ChessGame.TeamColor color) throws ResponseException {
-        try {
+    public void resign(String authToken, int gameID) throws ResponseException {
+       try {
             var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
-            this.session.close();
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }

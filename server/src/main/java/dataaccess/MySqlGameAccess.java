@@ -2,9 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
 import model.GameData;
-import model.UserData;
 import service.BadRequestException;
 import service.TakenException;
 
@@ -14,9 +12,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import static chess.ChessGame.TeamColor.BLACK;
-import static chess.ChessGame.TeamColor.WHITE;
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class MySqlGameAccess implements GameAccess{
@@ -124,6 +119,28 @@ public class MySqlGameAccess implements GameAccess{
     }
 
     @Override
+    public void updateGame(GameData game) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String statement = "UPDATE game SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                Gson gson = new Gson();
+                String gameJson = gson.toJson(game.game());
+
+                ps.setString(1, game.whiteUsername());
+                ps.setString(2, game.blackUsername());
+                ps.setString(3, game.gameName());
+                ps.setString(4, gameJson);
+                ps.setInt(5, game.gameID());
+
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unable to update game", e);
+        }
+    }
+
+
+        @Override
     public Collection<GameData> listGames() throws DataAccessException {
         List<GameData> games = new ArrayList<>();
         Gson gson = new Gson();

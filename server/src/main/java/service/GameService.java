@@ -32,6 +32,20 @@ public class GameService {
         return new CreateResult(createRequest.gameName(), gameID);
     }
 
+    public void updateGame(String authToken, GameData gameData) throws UnauthorizedException, BadRequestException {
+        try {
+            authAccess.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException(e.getMessage());
+        }
+
+        try {
+            gameAccess.updateGame(gameData);
+        } catch (DataAccessException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
     public ListResult list(String authToken) throws DataAccessException {
         if (authToken == null) {
             throw new BadRequestException("Error: bad request");

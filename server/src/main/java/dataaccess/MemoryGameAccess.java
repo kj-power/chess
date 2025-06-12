@@ -69,6 +69,11 @@ public class MemoryGameAccess implements GameAccess {
         DATA_HASH_MAP.put(gameID, newGame);
     }
 
+    @Override
+    public void updateGame(GameData game) throws DataAccessException {
+
+    }
+
     public Collection<GameData> listGames() {
         return DATA_HASH_MAP.values();
     }

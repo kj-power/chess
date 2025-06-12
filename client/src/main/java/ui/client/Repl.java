@@ -46,6 +46,15 @@ public class Repl implements NotificationHandler {
                         whichClient = "pre";
                         System.out.print("\n You're now signed out. Type 'help' for pre-login commands.");
                     }
+                    if (result.startsWith("Joined")) {
+                        whichClient = "game";
+                        System.out.print("\n You're now in-game. Type 'help' for in-game commands.");
+                    }
+                } else if (whichClient.equals("game")) {
+                    if (result.startsWith("Left")) {
+                        whichClient = "post";
+                        System.out.print("\n You're now out of the game. Type 'help' for post-login commands.");
+                    }
                 }
 
             } catch (Throwable e) {

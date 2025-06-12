@@ -21,6 +21,8 @@ public interface GameAccess {
 
     void joinGame(ChessGame.TeamColor color, int gameID, String username) throws DataAccessException, SQLException;
 
+    void updateGame(GameData game) throws DataAccessException;
+
     Collection<GameData> listGames() throws DataAccessException;
 
     void clear() throws DataAccessException;
