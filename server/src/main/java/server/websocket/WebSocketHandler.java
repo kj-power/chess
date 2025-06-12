@@ -30,6 +30,7 @@ import dataaccess.MySqlAuthAccess;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Timer;
 
 
@@ -112,9 +113,9 @@ public class WebSocketHandler {
 
     private ChessGame.TeamColor getColor(GameData game, String username) {
         ChessGame.TeamColor color = null;
-        if (username == game.whiteUsername()) {
+        if (Objects.equals(username, game.whiteUsername())) {
             color = ChessGame.TeamColor.WHITE;
-        } else if (username == game.blackUsername()) {
+        } else if (username.equals(game.blackUsername())) {
             color = ChessGame.TeamColor.BLACK;
         }
         return color;
@@ -164,6 +165,7 @@ public class WebSocketHandler {
         gameService.updateGame(authToken, game);
         NotificationMessage notification = new NotificationMessage(String.format("%s has forfeited, %s wins!", username, opUsername));
         connections.broadcast(authToken, notification);
+        connections.oneBroadcast(authToken, notification);
     }
 
     private void makeMove(MakeMoveCommand command, Session session) throws ResponseException {
