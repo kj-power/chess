@@ -72,7 +72,7 @@ public class WebSocketHandler {
             }
         } catch (UnauthorizedException ex){
            // connections.broadcast("", new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage()));
-        } catch (ResponseException | SQLException | DataAccessException e) {
+        } catch (ResponseException | SQLException | DataAccessException | InvalidMoveException e) {
             throw new RuntimeException(e);
         }
 
@@ -216,7 +216,7 @@ public class WebSocketHandler {
         connections.oneBroadcast(authToken, notification);
     }
 
-    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException, IOException, SQLException, DataAccessException {
+    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException, IOException, SQLException, DataAccessException, InvalidMoveException {
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
 
@@ -264,14 +264,24 @@ public class WebSocketHandler {
             ChessGame.TeamColor opColor = (color == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
             if (chessGame.isInCheck(opColor)) {
-                var notificationMessage = new NotificationMessage(String.format("%s is in check", color));
+                var notificationMessage = new NotificationMessage(String.format("%s is in check", opColor));
                 connections.broadcast(gameID, "", notificationMessage);
             }
 
             if (chessGame.isInCheckmate(opColor)) {
-                var notificationMessage = new NotificationMessage(String.format("%s is in checkmate", color));
+                var notificationMessage = new NotificationMessage(String.format("%s is in checkmate", opColor));
                 connections.broadcast(gameID, "", notificationMessage);
                 chessGame.setGameOver(true);
+                gameAccess.updateGame(game);
+                return;
+            }
+
+            if (chessGame.isInStalemate(opColor)) {
+                var notificationMessage = new NotificationMessage(String.format("%s is in stalemate", opColor));
+                connections.broadcast(gameID, "", notificationMessage);
+                chessGame.setGameOver(true);
+                gameAccess.updateGame(game);
+                return;
             }
 
             if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
@@ -281,16 +291,17 @@ public class WebSocketHandler {
             }
 
         } catch (InvalidMoveException e) {
-            var errorMessage = new ErrorMessage("Error: failed to make move");
+            var errorMessage = new ErrorMessage("Error: invalid move - " + e.getMessage());
             connections.oneBroadcast(authToken, errorMessage);
-            throw new RuntimeException(e);
         }
 
         try {
             String endCords;
             int col = chessMove.getEndPosition().getColumn();
             int row = chessMove.getEndPosition().getRow();
-            var message = String.format("%s moved to %s", username, chessMove.getEndPosition());
+            endCords = convertColBack(col);
+            endCords = endCords + String.valueOf(row);
+            var message = String.format("%s moved to %s", username, endCords);
             var notification = new NotificationMessage(message);
 
             Map<String, Connection> gameConnections = connections.getConnectionsForGame(gameID);
@@ -311,6 +322,14 @@ public class WebSocketHandler {
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
+    }
+
+    private String convertColBack(int colIndex) {
+        if (colIndex < 0 || colIndex > 7) {
+            throw new IllegalArgumentException("Error: column index must be between 0 and 7");
+        }
+        char colLetter = (char) ('a' + colIndex - 1);
+        return String.valueOf(colLetter);
     }
 
     private void connect(UserGameCommand command, Session session) throws IOException {
