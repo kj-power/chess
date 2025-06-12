@@ -52,6 +52,10 @@ public class WebSocketHandler {
             UserGameCommand.CommandType type = UserGameCommand.CommandType.valueOf(json.get("commandType").getAsString());
 
             switch (type) {
+                case LEAVE:
+                    UserGameCommand leaveCommand = new Gson().fromJson(json, UserGameCommand.class);
+                    leave(leaveCommand, session);
+                    break;
                 case MAKE_MOVE:
                     MakeMoveCommand moveCommand = new Gson().fromJson(json, MakeMoveCommand.class);
                     makeMove(moveCommand, session);
@@ -127,6 +131,23 @@ public class WebSocketHandler {
             color = ChessGame.TeamColor.BLACK;
         }
         return color;
+    }
+
+    private void leave(UserGameCommand command, Session session) throws IOException {
+        int gameID = command.getGameID();
+        String authToken = command.getAuthToken();
+
+        connections.add(authToken, gameID, session);
+        String username = getUsername(authToken);
+
+        if (username == null) {
+            return;
+        }
+
+        connections.remove(authToken);
+
+        NotificationMessage notification = new NotificationMessage(String.format("%s has left the game", username));
+        connections.broadcast("", notification);
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException {
