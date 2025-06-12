@@ -64,10 +64,11 @@ public class WebSocketHandler {
         try {
             MySqlAuthAccess authAccess = new MySqlAuthAccess();
             AuthData data = authAccess.getAuth(authToken);
+            if (data == null) {
+                return null;
+            }
             return data.username();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
+        } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -75,13 +76,20 @@ public class WebSocketHandler {
     private void connect(UserGameCommand command, Session session) throws IOException {
         int gameID = command.getGameID();
         String authToken = command.getAuthToken();
-        String username = getUsername(authToken);
 
         if (connections.isConnected(authToken, gameID, session)) {
             throw new IOException("Error: User already connected to this game.");
         }
 
         connections.add(authToken, gameID, session);
+
+        String username = getUsername(authToken);
+
+        if (username == null) {
+            var errorMessage = new ErrorMessage("Error: bad auth token");
+            connections.oneBroadcast(authToken, errorMessage);
+            return;
+        }
 
         GameData game;
 
@@ -91,7 +99,6 @@ public class WebSocketHandler {
 
             if (game == null) {
                 var errorMessage = new ErrorMessage("Error: could not find game");
-                System.out.println("Sending error message to authToken: " + authToken);
                 connections.oneBroadcast(authToken, errorMessage);
                 return;
             }
