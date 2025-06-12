@@ -258,52 +258,6 @@ public class WebSocketHandler {
 
             chessGame.makeMove(chessMove);
 
-            MySqlGameAccess gameAccess = new MySqlGameAccess();
-            gameAccess.updateGame(game);
-
-            ChessGame.TeamColor opColor = (color == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
-
-            if (chessGame.isInCheck(opColor)) {
-                var notificationMessage = new NotificationMessage(String.format("%s is in check", opColor));
-                connections.broadcast(gameID, "", notificationMessage);
-            }
-
-            if (chessGame.isInCheckmate(opColor)) {
-                var notificationMessage = new NotificationMessage(String.format("%s is in checkmate", opColor));
-                connections.broadcast(gameID, "", notificationMessage);
-                chessGame.setGameOver(true);
-                gameAccess.updateGame(game);
-                return;
-            }
-
-            if (chessGame.isInStalemate(opColor)) {
-                var notificationMessage = new NotificationMessage(String.format("%s is in stalemate", opColor));
-                connections.broadcast(gameID, "", notificationMessage);
-                chessGame.setGameOver(true);
-                gameAccess.updateGame(game);
-                return;
-            }
-
-            if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
-                chessGame.setTeamTurn(ChessGame.TeamColor.BLACK);
-            } else {
-                chessGame.setTeamTurn(ChessGame.TeamColor.WHITE);
-            }
-
-        } catch (InvalidMoveException e) {
-            var errorMessage = new ErrorMessage("Error: invalid move - " + e.getMessage());
-            connections.oneBroadcast(authToken, errorMessage);
-        }
-
-        try {
-            String endCords;
-            int col = chessMove.getEndPosition().getColumn();
-            int row = chessMove.getEndPosition().getRow();
-            endCords = convertColBack(col);
-            endCords = endCords + String.valueOf(row);
-            var message = String.format("%s moved to %s", username, endCords);
-            var notification = new NotificationMessage(message);
-
             Map<String, Connection> gameConnections = connections.getConnectionsForGame(gameID);
 
             for (Map.Entry<String, Connection> entry : gameConnections.entrySet()) {
@@ -317,15 +271,56 @@ public class WebSocketHandler {
                 connections.oneBroadcast(token, loadGameMessage);
             }
 
-            connections.broadcast(gameID, authToken, notification);
+            MySqlGameAccess gameAccess = new MySqlGameAccess();
+            gameAccess.updateGame(game);
 
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            ChessGame.TeamColor opColor = (color == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+
+            if (chessGame.isInCheckmate(opColor)) {
+                var notificationMessage = new NotificationMessage(String.format("%s is in checkmate", opColor));
+                connections.broadcast(gameID, "", notificationMessage);
+                chessGame.setGameOver(true);
+            } else if (chessGame.isInCheck(opColor)) {
+                var notificationMessage = new NotificationMessage(String.format("%s is in check", opColor));
+                connections.broadcast(gameID, "", notificationMessage);
+            }
+
+            if (chessGame.isInStalemate(opColor)) {
+                var notificationMessage = new NotificationMessage(String.format("%s is in stalemate", opColor));
+                connections.broadcast(gameID, "", notificationMessage);
+                chessGame.setGameOver(true);
+            }
+
+            if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
+                chessGame.setTeamTurn(ChessGame.TeamColor.BLACK);
+            } else {
+                chessGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+            }
+
+            try {
+                String endCords;
+                int col = chessMove.getEndPosition().getColumn();
+                int row = chessMove.getEndPosition().getRow();
+                endCords = convertColBack(col);
+                endCords = endCords + String.valueOf(row);
+                var message = String.format("%s moved to %s", username, endCords);
+                var notification = new NotificationMessage(message);
+
+                connections.broadcast(gameID, authToken, notification);
+
+            } catch (Exception ex) {
+                throw new ResponseException(500, ex.getMessage());
+            }
+
+        } catch (InvalidMoveException e) {
+            var errorMessage = new ErrorMessage("Error: invalid move - " + e.getMessage());
+            connections.oneBroadcast(authToken, errorMessage);
         }
     }
 
     private String convertColBack(int colIndex) {
-        if (colIndex < 0 || colIndex > 7) {
+        System.out.println(colIndex);
+        if (colIndex < 0 || colIndex > 8) {
             throw new IllegalArgumentException("Error: column index must be between 0 and 7");
         }
         char colLetter = (char) ('a' + colIndex - 1);
