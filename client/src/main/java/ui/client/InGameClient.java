@@ -27,10 +27,10 @@ public class InGameClient {
     private final GameData gameData;
     private final int gameID;
 
-    public InGameClient(ServerFacade server, String serverUrl, NotificationHandler notificationHandler, GameData gameData, ChessGame.TeamColor color) {
+    public InGameClient(ServerFacade server, String serverUrl, NotificationHandler notifHandler, GameData gameData, ChessGame.TeamColor color) {
         this.server = server;
         this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
+        this.notificationHandler = notifHandler;
         this.color = color;
         this.gameData = gameData;
         this.chessGame = gameData.game();

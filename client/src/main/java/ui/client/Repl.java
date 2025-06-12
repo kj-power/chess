@@ -62,11 +62,7 @@ public class Repl implements NotificationHandler {
                     if (result.startsWith("Joined")) {
                         whichClient = "game";
                         System.out.print("\n You're now in-game. Type 'help' for in-game commands.");
-                        if (result.contains("black")) {
-                            color = ChessGame.TeamColor.BLACK;
-                        } else {
-                            color = ChessGame.TeamColor.WHITE;
-                        }
+                        color = result.contains("black") ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
                         var listResult = sharedServer.list();
                         List<GameData> games = new ArrayList<>(listResult.games());
                         String[] tokens = result.split(" ");

@@ -216,7 +216,7 @@ public class WebSocketHandler {
         connections.oneBroadcast(authToken, notification);
     }
 
-    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException, IOException, SQLException, DataAccessException, InvalidMoveException {
+    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException, IOException, DataAccessException, InvalidMoveException {
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
 
@@ -257,7 +257,6 @@ public class WebSocketHandler {
             }
 
             chessGame.makeMove(chessMove);
-
             Map<String, Connection> gameConnections = connections.getConnectionsForGame(gameID);
 
             for (Map.Entry<String, Connection> entry : gameConnections.entrySet()) {
@@ -273,7 +272,6 @@ public class WebSocketHandler {
 
             MySqlGameAccess gameAccess = new MySqlGameAccess();
             gameAccess.updateGame(game);
-
             ChessGame.TeamColor opColor = (color == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
             if (chessGame.isInCheckmate(opColor)) {
@@ -312,7 +310,7 @@ public class WebSocketHandler {
                 throw new ResponseException(500, ex.getMessage());
             }
 
-        } catch (InvalidMoveException e) {
+        } catch (InvalidMoveException | SQLException e) {
             var errorMessage = new ErrorMessage("Error: invalid move - " + e.getMessage());
             connections.oneBroadcast(authToken, errorMessage);
         }
