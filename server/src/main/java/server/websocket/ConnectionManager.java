@@ -1,13 +1,17 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
@@ -24,6 +28,12 @@ public class ConnectionManager {
     public boolean isConnected(String authToken, int gameID, Session session) {
         var connection = connections.get(authToken);
         return connection != null && connection.gameID == gameID && connection.session.equals(session);
+    }
+
+    public Map<String, Connection> getConnectionsForGame(int gameID) {
+        return connections.entrySet().stream()
+                .filter(e -> e.getValue().gameID == gameID)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void broadcast(int gameID, String excludeToken, ServerMessage serverMessage) throws IOException {

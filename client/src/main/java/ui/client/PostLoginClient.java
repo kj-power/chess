@@ -30,8 +30,8 @@ public class PostLoginClient {
         this.notificationHandler = notificationHandler;
     }
 
-    public String eval(String input) {
-        try {
+    public String eval(String input) throws ResponseException {
+
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -45,29 +45,38 @@ public class PostLoginClient {
                 case "observe" -> observe(params);
                 default -> help();
             };
-        } catch (exception.ResponseException ex) {
-            return ex.getMessage();
-        }
     }
 
     public String observe(String... params) throws exception.ResponseException {
+        String token = server.getAuthToken();
         int id = 0;
         try {
             id = Integer.parseInt(params[0]);
         }
         catch (NumberFormatException e) {
-            throw new ResponseException(400, "must be a number");
+            throw new ResponseException(400, "Error: input must be a number");
         }
         var result = server.list();
         List<GameData> games = new ArrayList<>(result.games());
+
+        try {
+            id = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            throw new exception.ResponseException(400, "Game ID must be a number.");
+        }
+
+        GameData game = games.get(id - 1);
+        int gameID = game.gameID();
+
         if (id <= games.size()) {
-            BoardMaker.main(ChessGame.TeamColor.WHITE, new ChessGame());
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.connect(token, gameID, null);
         }
         else {
             throw new ResponseException(400, "Not in list");
         }
         this.state = State.INGAME;
-        return String.format("Joined game %s!", id);
+        return String.format("Joined game %s", id);
     }
 
     public String play(String... params) throws exception.ResponseException {
@@ -103,16 +112,16 @@ public class PostLoginClient {
 
         boolean success = server.join(req);
         ws = new WebSocketFacade(serverUrl, notificationHandler);
-        ws.connect(token, gameID, color);
+        ws.connect(token, gameID, null);
 
         if (!success) {
             System.out.println("Join failed. Please check the game ID and color, or try again.");
         }
 
         this.state = State.INGAME;
-        BoardMaker.main(color, new ChessGame());
+
         if (color == ChessGame.TeamColor.WHITE) {
-            return String.format("Joined game &s as white", id);
+            return String.format("Joined game %s as white", id);
         }
        else {
            return String.format("Joined game %s as black", id);

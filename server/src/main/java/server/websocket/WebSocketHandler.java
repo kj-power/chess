@@ -33,6 +33,7 @@ import dataaccess.MySqlAuthAccess;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
 
@@ -260,6 +261,19 @@ public class WebSocketHandler {
             MySqlGameAccess gameAccess = new MySqlGameAccess();
             gameAccess.updateGame(game);
 
+            ChessGame.TeamColor opColor = (color == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+
+            if (chessGame.isInCheck(opColor)) {
+                var notificationMessage = new NotificationMessage(String.format("%s is in check", color));
+                connections.broadcast(gameID, "", notificationMessage);
+            }
+
+            if (chessGame.isInCheckmate(opColor)) {
+                var notificationMessage = new NotificationMessage(String.format("%s is in checkmate", color));
+                connections.broadcast(gameID, "", notificationMessage);
+                chessGame.setGameOver(true);
+            }
+
             if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
                 chessGame.setTeamTurn(ChessGame.TeamColor.BLACK);
             } else {
@@ -273,11 +287,27 @@ public class WebSocketHandler {
         }
 
         try {
+            String endCords;
+            int col = chessMove.getEndPosition().getColumn();
+            int row = chessMove.getEndPosition().getRow();
             var message = String.format("%s moved to %s", username, chessMove.getEndPosition());
-            var loadGameMessage = new LoadGameMessage(chessGame, color);
             var notification = new NotificationMessage(message);
-            connections.broadcast(gameID, "", loadGameMessage);
+
+            Map<String, Connection> gameConnections = connections.getConnectionsForGame(gameID);
+
+            for (Map.Entry<String, Connection> entry : gameConnections.entrySet()) {
+                String token = entry.getKey();
+                Connection conn = entry.getValue();
+
+                String otherUsername = getUsername(token);
+                ChessGame.TeamColor userColor = getColor(game, otherUsername);
+                var loadGameMessage = new LoadGameMessage(chessGame, userColor);
+
+                connections.oneBroadcast(token, loadGameMessage);
+            }
+
             connections.broadcast(gameID, authToken, notification);
+
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }

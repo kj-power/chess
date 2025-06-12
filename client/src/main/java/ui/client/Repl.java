@@ -4,6 +4,8 @@ import chess.ChessGame;
 import model.GameData;
 import server.ServerFacade;
 import ui.client.websocket.NotificationHandler;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -16,6 +18,7 @@ import static ui.EscapeSequences.*;
 public class Repl implements NotificationHandler {
     private final PreLoginClient preClient;
     private final PostLoginClient postClient;
+    private InGameClient gameClient;
     private final ServerFacade sharedServer;
     private final String serverUrl;
     private ChessGame.TeamColor color;
@@ -26,6 +29,7 @@ public class Repl implements NotificationHandler {
         postClient = new PostLoginClient(sharedServer, serverUrl, this);
         this.serverUrl = serverUrl;
         color = null;
+        gameClient = null;
     }
 
     String whichClient = "pre";
@@ -63,13 +67,16 @@ public class Repl implements NotificationHandler {
                         } else {
                             color = ChessGame.TeamColor.WHITE;
                         }
+                        var listResult = sharedServer.list();
+                        List<GameData> games = new ArrayList<>(listResult.games());
+                        String[] tokens = result.split(" ");
+                        int gameIndex = Integer.parseInt(tokens[2]);
+                        GameData joinGame = games.get(gameIndex - 1);
+                        gameClient = new InGameClient(sharedServer, serverUrl, this, joinGame, color);
                     }
                 } else if (whichClient.equals("game")) {
-                    var listResult = sharedServer.list();
-                    List<GameData> games = new ArrayList<>(listResult.games());
-                    GameData joinGame = games.get(((int) result.charAt(4)));
-                    InGameClient gameClient = new InGameClient(sharedServer, serverUrl, this, joinGame, color);
                     result = gameClient.eval(line);
+                    System.out.print(SET_TEXT_COLOR_BLUE + result);
                     if (result.startsWith("Left")) {
                         whichClient = "post";
                         System.out.print("\n You're now out of the game. Type 'help' for post-login commands.");
@@ -91,13 +98,25 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void notify(ServerMessage serverMessage) {
-//        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-//
-//        }
-//        else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-//            System.out.println(SET_TEXT_COLOR_RED + notific.getMessage());
-//        }
-//
-//        printPrompt();
+        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            LoadGameMessage loadMsg = (LoadGameMessage) serverMessage;
+            System.out.println(SET_TEXT_COLOR_MAGENTA + "Game Loaded!");
+
+            if (gameClient != null) {
+                gameClient.updateGame(loadMsg.getGame(), loadMsg.getColor());
+            }
+
+            BoardMaker.main(loadMsg.getColor(), loadMsg.getGame(), null);
+        }
+        else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            NotificationMessage notifMsg = (NotificationMessage) serverMessage;
+            System.out.println(SET_TEXT_COLOR_YELLOW + notifMsg.getMessage());
+        }
+        else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            ErrorMessage errorMsg = (ErrorMessage) serverMessage;
+            System.out.println(SET_TEXT_COLOR_RED + errorMsg.getMessage());
+        }
+
+        printPrompt();
     }
 }

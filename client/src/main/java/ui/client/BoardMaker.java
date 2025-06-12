@@ -1,12 +1,16 @@
 package ui.client;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import service.BadRequestException;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -27,15 +31,28 @@ public class BoardMaker {
 
     private static Random rand = new Random();
 
-    public static void main(ChessGame.TeamColor color, ChessGame game) {
+    public static void main(ChessGame.TeamColor color, ChessGame game, ChessPosition position) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         out.print(ERASE_SCREEN);
+
+        if (color == null) {
+            color = WHITE;
+        }
+
+        Set<ChessPosition> highlights = new HashSet<>();
+        if (position != null) {
+            if (game.validMoves(position) == null) {
+                throw new BadRequestException("Error: no valid moves for selected position");
+            }
+            for (ChessMove move : game.validMoves(position)) {
+                highlights.add(move.getEndPosition());
+            }
+        }
 
         drawHeaders(out, color);
 
         for (int row = 0; row < 8; row++) {
-            drawRow(out, color, row, game);
+            drawRow(out, color, row, game, highlights);
             out.println();
         }
 
@@ -52,7 +69,7 @@ public class BoardMaker {
         String[] whiteHeaders = { EMPTY, " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", EMPTY};
         String[] blackHeaders = { EMPTY, " h ", " g ", " f ", " e ", " d ", " c ", " b ", " a ", EMPTY};
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-            out.print(SET_BG_COLOR_LIGHT_GREY);
+            out.print(SET_BG_COLOR_BLUE);
             out.print(SET_TEXT_COLOR_BLACK);
 
             if (color == WHITE) {
@@ -66,26 +83,38 @@ public class BoardMaker {
         out.println();
     }
 
-    private static void drawRow(PrintStream out, ChessGame.TeamColor color, int row, ChessGame game) {
+    private static void drawRow(PrintStream out, ChessGame.TeamColor color, int row, ChessGame game, Set<ChessPosition> highlights) {
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; boardCol++) {
             String square;
-            if (color == WHITE) {
-                square = getPiece(8 - row, boardCol, game, color);
-            }
-            else {
-                square = getPiece(row + 1, 9 - boardCol, game, color);
-            }
+            int actualRow = (color == WHITE) ? 8 - row : row + 1;
+            int actualCol = (color == WHITE) ? boardCol : 9 - boardCol;
+
+            ChessPosition pos = new ChessPosition(actualRow, actualCol);
+            square = getPiece(actualRow, actualCol, game, color);
+
             if (boardCol == 0 || boardCol == 9) {
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                out.print(color==WHITE ? " " + (8 - row) + " " : " " + (row + 1) + " ");
+                out.print(SET_BG_COLOR_BLUE);
+                out.print(" " + actualRow + " ");
             }
             else if ((row % 2 == 0 && boardCol % 2 == 1) || (row % 2 == 1 && boardCol % 2 == 0)) {
-                out.print(SET_BG_COLOR_GREEN);
-                out.print(square);
+                if (highlights.contains(pos)) {
+                    out.print(SET_BG_COLOR_GREEN);
+                    out.print(square);
+                }
+                else {
+                    out.print(SET_BG_COLOR_WHITE);
+                    out.print(square);
+                }
             }
             else {
-                out.print(SET_BG_COLOR_DARK_GREEN);
-                out.print(square);
+                if (highlights.contains(pos)) {
+                    out.print(SET_BG_COLOR_DARK_GREEN);
+                    out.print(square);
+                }
+                else {
+                    out.print(SET_BG_COLOR_LIGHT_GREY);
+                    out.print(square);
+                }
             }
             out.print(RESET_BG_COLOR);
         }
