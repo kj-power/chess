@@ -133,7 +133,7 @@ public class WebSocketHandler {
         return color;
     }
 
-    private void leave(UserGameCommand command, Session session) throws IOException {
+    private void leave(UserGameCommand command, Session session) throws IOException, SQLException, DataAccessException {
         int gameID = command.getGameID();
         String authToken = command.getAuthToken();
 
@@ -144,10 +144,30 @@ public class WebSocketHandler {
             return;
         }
 
-        connections.remove(authToken);
+        GameData game = getGameData(gameID, authToken);
+        if (game == null) {
+            return;
+        }
+
+        ChessGame.TeamColor color = getColor(game, username);
+        if (color == null) {
+            return;
+        }
+
+        GameData newGame;
+        if (color == ChessGame.TeamColor.WHITE) {
+            newGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+        } else {
+            newGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+        }
+
+        MySqlGameAccess gameAccess = new MySqlGameAccess();
+        gameAccess.updateGame(newGame);
 
         NotificationMessage notification = new NotificationMessage(String.format("%s has left the game", username));
-        connections.broadcast("", notification);
+        connections.broadcast(authToken, notification);
+        connections.remove(authToken);
+        session.close();
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException {
