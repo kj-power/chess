@@ -164,7 +164,7 @@ public class WebSocketHandler {
         gameAccess.updateGame(newGame);
 
         NotificationMessage notification = new NotificationMessage(String.format("%s has left the game", username));
-        connections.broadcast(authToken, notification);
+        connections.broadcast(gameID, authToken, notification);
         connections.remove(authToken);
     }
 
@@ -211,7 +211,7 @@ public class WebSocketHandler {
 
         gameService.updateGame(authToken, game);
         NotificationMessage notification = new NotificationMessage(String.format("%s has forfeited, %s wins!", username, opUsername));
-        connections.broadcast(authToken, notification);
+        connections.broadcast(gameID, authToken, notification);
         connections.oneBroadcast(authToken, notification);
     }
 
@@ -276,8 +276,8 @@ public class WebSocketHandler {
             var message = String.format("%s moved to %s", username, chessMove.getEndPosition());
             var loadGameMessage = new LoadGameMessage(chessGame, color);
             var notification = new NotificationMessage(message);
-            connections.broadcast("", loadGameMessage);
-            connections.broadcast(authToken, notification);
+            connections.broadcast(gameID, "", loadGameMessage);
+            connections.broadcast(gameID, authToken, notification);
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -309,7 +309,7 @@ public class WebSocketHandler {
 
         var message = String.format("%s joined the game", username);
         var notification = new NotificationMessage(message);
-        connections.broadcast(authToken, notification);
+        connections.broadcast(gameID, authToken, notification);
         var loadGameMessage = new LoadGameMessage(chessGame, color);
         connections.oneBroadcast(authToken, loadGameMessage);
     }
