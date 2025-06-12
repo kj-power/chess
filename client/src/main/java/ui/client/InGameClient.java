@@ -56,12 +56,12 @@ public class InGameClient {
                 case "highlight" -> highlight(params);
                 default -> help();
             };
-        } catch (exception.ResponseException ex) {
+        } catch (Exception ex) {
             return ex.getMessage();
         }
     }
 
-    public String highlight(String... params) throws ResponseException {
+    public String highlight(String... params) throws Exception {
         int col;
         int row;
 
@@ -166,7 +166,7 @@ public class InGameClient {
         return String.format("Leaving game");
     }
 
-    public String redraw() {
+    public String redraw() throws Exception {
         BoardMaker.main(color, chessGame, null);
         return String.format("Current board");
     }
