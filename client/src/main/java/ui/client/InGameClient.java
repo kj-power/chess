@@ -123,7 +123,7 @@ public class InGameClient {
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.move(server.getAuthToken(), this.gameID, chessMove);
 
-        return String.format("Move made from %s%s to %s%s", params[0], params[1], params[2], params[3]);
+        return String.format("Making move from %s%s to %s%s", params[0], params[1], params[2], params[3]);
     }
 
     private int convertCol(String col) {
@@ -164,7 +164,7 @@ public class InGameClient {
     public String leave() throws ResponseException {
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.leave(server.getAuthToken(), this.gameID, this.color);
-        return String.format("Left game");
+        return String.format("Leaving game");
     }
 
     public String redraw() {
