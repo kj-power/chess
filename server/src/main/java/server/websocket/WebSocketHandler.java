@@ -273,13 +273,18 @@ public class WebSocketHandler {
             MySqlGameAccess gameAccess = new MySqlGameAccess();
             gameAccess.updateGame(game);
             ChessGame.TeamColor opColor = (color == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
-
+            String opUsername;
+            if (opColor == ChessGame.TeamColor.WHITE) {
+                opUsername = game.whiteUsername();
+            } else {
+                opUsername = game.blackUsername();
+            }
             if (chessGame.isInCheckmate(opColor)) {
-                var notificationMessage = new NotificationMessage(String.format("%s is in checkmate", opColor));
+                var notificationMessage = new NotificationMessage(String.format("%s is in checkmate", opUsername));
                 connections.broadcast(gameID, "", notificationMessage);
                 chessGame.setGameOver(true);
             } else if (chessGame.isInCheck(opColor)) {
-                var notificationMessage = new NotificationMessage(String.format("%s is in check", opColor));
+                var notificationMessage = new NotificationMessage(String.format("%s is in check", opUsername));
                 connections.broadcast(gameID, "", notificationMessage);
             }
 
@@ -349,7 +354,7 @@ public class WebSocketHandler {
 
         ChessGame chessGame = game.game();
 
-        var message = String.format("%s joined the game", username);
+        var message = String.format("%s joined the game as %s", username, color);
         var notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
         var loadGameMessage = new LoadGameMessage(chessGame, color);

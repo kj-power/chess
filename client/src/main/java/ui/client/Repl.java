@@ -73,7 +73,7 @@ public class Repl implements NotificationHandler {
                 } else if (whichClient.equals("game")) {
                     result = gameClient.eval(line);
                     System.out.print(SET_TEXT_COLOR_BLUE + result);
-                    if (result.startsWith("Left")) {
+                    if (result.startsWith("Leaving")) {
                         whichClient = "post";
                         System.out.print("\n You're now out of the game. Type 'help' for post-login commands.");
                     }
