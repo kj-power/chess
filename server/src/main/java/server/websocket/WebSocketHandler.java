@@ -67,7 +67,7 @@ public class WebSocketHandler {
             }
         } catch (UnauthorizedException ex){
            // connections.broadcast("", new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage()));
-        } catch (ResponseException e) {
+        } catch (ResponseException | SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -173,7 +173,7 @@ public class WebSocketHandler {
         connections.oneBroadcast(authToken, notification);
     }
 
-    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException, IOException {
+    private void makeMove(MakeMoveCommand command, Session session) throws ResponseException, IOException, SQLException, DataAccessException {
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
 
@@ -187,6 +187,12 @@ public class WebSocketHandler {
         ChessGame chessGame = game.game();
         ChessGame.TeamColor color = getColor(game, username);
 
+        if (chessGame.getGameOver()) {
+            var errorMessage = new ErrorMessage("Error: game is already over");
+            connections.oneBroadcast(authToken, errorMessage);
+            return;
+        }
+
         if (chessMove == null) {
             var errorMessage = new ErrorMessage("Error: enter valid positions to move");
             connections.oneBroadcast(authToken, errorMessage);
@@ -194,7 +200,16 @@ public class WebSocketHandler {
         }
 
         try {
+            chessGame.setTeamTurn(color);
             chessGame.makeMove(chessMove);
+            MySqlGameAccess gameAccess = new MySqlGameAccess();
+            gameAccess.updateGame(game);
+
+            if (color == ChessGame.TeamColor.WHITE) {
+                chessGame.setTeamTurn(ChessGame.TeamColor.BLACK);
+            } else {
+                chessGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+            }
         } catch (InvalidMoveException e) {
             var errorMessage = new ErrorMessage("Error: failed to make move");
             connections.oneBroadcast(authToken, errorMessage);

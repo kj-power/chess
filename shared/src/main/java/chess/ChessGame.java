@@ -92,6 +92,7 @@ public class ChessGame {
         copyBoard.duplicateBoard(gameBoard);
         // move the piece on the copied board
         copyBoard.movePiece(move.getStartPosition(), move.getEndPosition(), piece);
+        //piece = copyBoard.getPiece(move.getEndPosition());
         // find king
         ChessPosition kingPos = copyBoard.findKing(piece.getTeamColor());
 
@@ -124,6 +125,7 @@ public class ChessGame {
         Collection<ChessMove> allMoves = new ArrayList<>();
         Collection<ChessMove> validMoves = new ArrayList<>();
         allMoves = piece.pieceMoves(gameBoard, startPosition);
+        Collection<ChessMove> testAllMoves = new ArrayList<>();
         if (allMoves == null) {
             return null;
         }
@@ -169,9 +171,11 @@ public class ChessGame {
         ChessPiece piece = gameBoard.getPiece(pos);
         boolean possible = false;
         if (piece == null) {
+            System.out.println("piece is null");
             throw new InvalidMoveException();
         }
         if (piece.getTeamColor() != teamTurn) {
+            System.out.println("wrong turn");
             throw new InvalidMoveException();
         }
         Collection<ChessMove> possibleMoves = validMoves(pos);
@@ -200,6 +204,7 @@ public class ChessGame {
 
         }
         if (!possible) {
+            System.out.println("not a possible move");
             throw new InvalidMoveException();
         }
     }
