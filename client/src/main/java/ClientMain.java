@@ -1,9 +1,6 @@
-import chess.*;
-import server.ServerFacade;
-import ui.client.BoardMaker;
 import ui.client.Repl;
 
-public class Main {
+public class ClientMain {
     public static void main(String[] args) {
         System.out.println("♕ 240 Chess Client: ");
         var serverUrl = "http://localhost:8080";

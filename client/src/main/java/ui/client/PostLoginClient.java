@@ -100,9 +100,11 @@ public class PostLoginClient {
         int gameID = game.gameID();
 
         JoinRequest req = new JoinRequest(color, gameID);
+
+        boolean success = server.join(req);
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.connect(token, gameID, color);
-        boolean success = server.join(req);
+
         if (!success) {
             System.out.println("Join failed. Please check the game ID and color, or try again.");
         }
