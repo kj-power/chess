@@ -38,13 +38,25 @@ public class WebSocketFacade extends Endpoint {
                 public void onMessage(String message) {
                         if (message.contains("LOAD_GAME")) {
                             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-                            notificationHandler.notify(loadGameMessage);
+                            try {
+                                notificationHandler.notify(loadGameMessage);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
                         } else if (message.contains("NOTIFICATION")) {
                             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
-                            notificationHandler.notify(notificationMessage);
+                            try {
+                                notificationHandler.notify(notificationMessage);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
                         } else if (message.contains("ERROR")) {
                             ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
-                            notificationHandler.notify(errorMessage);
+                            try {
+                                notificationHandler.notify(errorMessage);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
                         }
 
 
